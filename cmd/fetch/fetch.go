@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// Package fetch 数据的获取
-package fetch
+package main
 
 import (
 	"bytes"
@@ -14,10 +13,8 @@ import (
 	"github.com/issue9/errwrap"
 )
 
-// ErrInvalidYear 无效的年份
-//
 // 年份只能介于 [2009, 当前) 的区间之间。
-var ErrInvalidYear = errors.New("无效的年份")
+var errInvalidYear = errors.New("无效的年份")
 
 const (
 	baseURL   = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
@@ -40,7 +37,7 @@ func allYears() []int {
 // years 为指定的一个或多个年份，如果为空，则表示所有的年份。
 // 年份时间为 http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/
 // 上存在的时间，从 2009 开始，到当前年份的上一年。
-func Fetch(dir string, years ...int) error {
+func fetch(dir string, years ...int) error {
 	if len(years) == 0 {
 		years = allYears()
 	}
@@ -59,7 +56,7 @@ func Fetch(dir string, years ...int) error {
 
 func fetchYear(dir string, year int) error {
 	if year < startYear || year > lastYear {
-		return ErrInvalidYear
+		return errInvalidYear
 	}
 
 	buf := &errwrap.Buffer{Buffer: bytes.Buffer{}}

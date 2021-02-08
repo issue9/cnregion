@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-package fetch
+package main
 
 import (
 	"bytes"

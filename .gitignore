@@ -19,4 +19,4 @@
 *.swp
 .DS_Store
 
-fetch/data/
+data/
