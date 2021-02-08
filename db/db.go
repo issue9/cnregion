@@ -6,11 +6,18 @@ package db
 import (
 	"bytes"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 
 	"github.com/issue9/errwrap"
 )
+
+// DB 区域数据库信息
+type DB struct {
+	*Region
+	Versions []int // 支持的版本
+}
 
 // Load 从数据库文件加载数据
 func Load(file string) (*DB, error) {
@@ -21,10 +28,13 @@ func Load(file string) (*DB, error) {
 	return Unmarshal(data)
 }
 
-// DB 区域数据库信息
-type DB struct {
-	*Region
-	Versions []int // 支持的版本
+// Dump 输出到文件
+func (db *DB) Dump(file string) error {
+	data, err := Marshal(db)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(file, data, os.ModePerm)
 }
 
 // Marshal 将 DB 转换成 []byte
