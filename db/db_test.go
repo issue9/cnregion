@@ -3,6 +3,8 @@
 package db
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/issue9/assert"
@@ -51,4 +53,29 @@ func TestMarshal(t *testing.T) {
 	d1, err := Marshal(obj)
 	a.NotError(err).NotNil(d1)
 	a.Equal(string(d1), string(data))
+}
+
+func TestSplit(t *testing.T) {
+	a := assert.New(t)
+
+	province, city, county, town, village := Split("330203103233")
+	a.Equal(province, "33").
+		Equal(city, "02").
+		Equal(county, "03").
+		Equal(town, "103").
+		Equal(village, "233")
+
+	a.Panic(func() {
+		Split("3303")
+	})
+}
+
+func TestDB_LoadDump(t *testing.T) {
+	a := assert.New(t)
+
+	path := filepath.Join(os.TempDir(), "cnregion_db.dict")
+	a.NotError(obj.Dump(path))
+	d, err := Load(path)
+	a.NotError(err).NotNil(d)
+	a.Equal(d, obj)
 }
