@@ -5,7 +5,6 @@ package db
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -18,15 +17,6 @@ import (
 type DB struct {
 	*Region
 	Versions []int // 支持的版本
-}
-
-// Split 将一个区域 ID 按区域进行划分
-func Split(id string) (province, city, county, town, village string) {
-	if len(id) != 12 {
-		panic(fmt.Sprintf("id 的长度只能为 12，当前为 %s", id))
-	}
-
-	return id[:2], id[2:4], id[4:6], id[6:9], id[9:12]
 }
 
 // Load 从数据库文件加载数据

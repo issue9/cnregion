@@ -55,21 +55,6 @@ func TestMarshal(t *testing.T) {
 	a.Equal(string(d1), string(data))
 }
 
-func TestSplit(t *testing.T) {
-	a := assert.New(t)
-
-	province, city, county, town, village := Split("330203103233")
-	a.Equal(province, "33").
-		Equal(city, "02").
-		Equal(county, "03").
-		Equal(town, "103").
-		Equal(village, "233")
-
-	a.Panic(func() {
-		Split("3303")
-	})
-}
-
 func TestDB_LoadDump(t *testing.T) {
 	a := assert.New(t)
 

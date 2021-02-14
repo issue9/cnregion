@@ -118,7 +118,7 @@ func collect(dir string, buf *errwrap.Buffer, base string) error {
 
 func trimID(id string) string {
 	id = strings.TrimSuffix(id, ".html")
-	index := strings.IndexByte(id, '/')
+	index := strings.LastIndexByte(id, '/')
 	if index >= 0 {
 		id = id[index+1:]
 	}

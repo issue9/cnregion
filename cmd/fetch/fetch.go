@@ -4,35 +4,14 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 
 	"github.com/issue9/errwrap"
 )
 
-// 年份只能介于 [2009, 当前) 的区间之间。
-var errInvalidYear = errors.New("无效的年份")
-
-const (
-	baseURL   = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
-	startYear = 2009
-)
-
-var lastYear = time.Now().Year() - 1
-
-func allYears() []int {
-	years := make([]int, 0, lastYear-startYear)
-	for year := lastYear; year >= startYear; year-- {
-		years = append(years, year)
-	}
-
-	return years
-}
-
-// Fetch 拉取指定年份的数据
+// 拉取指定年份的数据
 //
 // years 为指定的一个或多个年份，如果为空，则表示所有的年份。
 // 年份时间为 http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/
