@@ -21,13 +21,13 @@ var ErrInvalidYear = errors.New("无效的年份")
 // 即提供的数据的起始年份。
 const Start = 2009
 
-// Last 最新的版本号
-var Last = time.Now().Year() - 1
+// Latest 最新的版本号
+var Latest = time.Now().Year() - 1
 
 // All 返回支持的版本号列表
 func All() []int {
-	years := make([]int, 0, Last-Start)
-	for year := Last; year >= Start; year-- {
+	years := make([]int, 0, Latest-Start)
+	for year := Latest; year >= Start; year-- {
 		years = append(years, year)
 	}
 
