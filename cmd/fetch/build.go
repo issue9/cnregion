@@ -14,11 +14,12 @@ import (
 
 	"github.com/issue9/cnregion/db"
 	regionid "github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/version"
 )
 
 func build(dataDir string, output string, years ...int) error {
 	if len(years) == 0 {
-		years = allYears()
+		years = version.All()
 	}
 
 	var d *db.DB

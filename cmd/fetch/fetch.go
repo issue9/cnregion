@@ -9,7 +9,11 @@ import (
 	"strconv"
 
 	"github.com/issue9/errwrap"
+
+	"github.com/issue9/cnregion/version"
 )
+
+const baseURL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
 
 // 拉取指定年份的数据
 //
@@ -18,7 +22,7 @@ import (
 // 上存在的时间，从 2009 开始，到当前年份的上一年。
 func fetch(dir string, years ...int) error {
 	if len(years) == 0 {
-		years = allYears()
+		years = version.All()
 	}
 
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
@@ -34,8 +38,8 @@ func fetch(dir string, years ...int) error {
 }
 
 func fetchYear(dir string, year int) error {
-	if year < startYear || year > lastYear {
-		return errInvalidYear
+	if year < version.Start || year > version.Last {
+		return version.ErrInvalidYear
 	}
 
 	buf := &errwrap.Buffer{Buffer: bytes.Buffer{}}

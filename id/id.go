@@ -3,7 +3,10 @@
 // Package id 针对 ID 的一些操作函数
 package id
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Level 表示一个 ID 表示的区域级别
 type Level int8
@@ -60,4 +63,17 @@ func Split(id string) (province, city, county, town, village string) {
 	}
 
 	return id[:2], id[2:4], id[4:6], id[6:9], id[9:12]
+}
+
+// Fill 为 id 填充后缀的 0
+func Fill(id string) string {
+	rem := 12 - len(id)
+	switch {
+	case rem == 12:
+		return id
+	case rem > 12 || rem < 2:
+		panic(fmt.Sprintf("无效的 id %s，无法为其填充 0", id))
+	default:
+		return id + strings.Repeat("0", rem)
+	}
 }
