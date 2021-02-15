@@ -22,3 +22,21 @@ func TestSplit(t *testing.T) {
 		Split("3303")
 	})
 }
+
+func TestFill(t *testing.T) {
+	a := assert.New(t)
+
+	a.Equal(Fill("34"), "340000000000")
+	a.Equal(Fill("341234666777"), "341234666777")
+	a.Panic(func() {
+		Fill("34112233444332")
+	})
+}
+
+func TestIsZero(t *testing.T) {
+	a := assert.New(t)
+
+	a.True(IsZero("000"))
+	a.False(IsZero("00x"))
+	a.False(IsZero(""))
+}
