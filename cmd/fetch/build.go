@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/issue9/cnregion/db"
-	regionid "github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/id"
 	"github.com/issue9/cnregion/version"
 )
 
@@ -44,12 +44,21 @@ func build(dataDir string, output string, years ...int) error {
 }
 
 func buildYear(d *db.DB, dataDir string, year int) error {
+	for _, v := range d.Versions { // 检测 year 是否已经存在？
+		if v == year {
+			fmt.Printf("年份 %d 已经存在，忽略该数据\n", year)
+			return nil
+		}
+	}
+
 	fmt.Printf("添加 %d 的数据\n", year)
 
 	d.Versions = append(d.Versions, year)
 
 	y := strconv.Itoa(year)
 	dataDir = filepath.Join(dataDir, y)
+
+	yearIndex := len(d.Versions) - 1
 
 	return filepath.Walk(dataDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -75,7 +84,7 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 			}
 			id, name := vals[0], vals[1]
 
-			if err := appendDB(d, year, id, name); err != nil {
+			if err := appendDB(d, yearIndex, id, name); err != nil {
 				return err
 			}
 		}
@@ -84,59 +93,32 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 	})
 }
 
-func appendDB(d *db.DB, year int, id, name string) error {
-	province, city, county, town, village := regionid.Split(id)
-
-	switch {
-	case province == "00":
-		panic(fmt.Sprintf("无效的 ID %s，省份不能为 00", id))
-	case city == "00": // 添加省份 ID
-		d.Items = append(d.Items, &db.Region{
-			ID:   province,
-			Name: name,
-		})
-	case county == "00": // 添加市
-		item := findItem(d.Items, province)
+func appendDB(d *db.DB, yearIndex int, regionID, name string) error {
+	province, city, county, town, village := id.Split(regionID)
+	list := filterZero(province, city, county, town, village)
+	item := d.Find(list...)
+	if item == nil {
+		item = d.Find(list[:len(list)-1]...) // 上一级
 		item.Items = append(item.Items, &db.Region{
-			ID:   city,
-			Name: name,
+			ID:        list[len(list)-1],
+			Name:      name,
+			Supported: 1 << yearIndex,
 		})
-	case town == "000": // 添加县
-		item := findItem(d.Items, province)
-		item = findItem(item.Items, city)
-		item.Items = append(item.Items, &db.Region{
-			ID:   county,
-			Name: name,
-		})
-	case village == "000": // 添加乡
-		item := findItem(d.Items, province)
-		item = findItem(item.Items, city)
-		item = findItem(item.Items, county)
-		item.Items = append(item.Items, &db.Region{
-			ID:   town,
-			Name: name,
-		})
-	default:
-		item := findItem(d.Items, province)
-		item = findItem(item.Items, city)
-		item = findItem(item.Items, county)
-		item = findItem(item.Items, town)
-		item.Items = append(item.Items, &db.Region{
-			ID:   village,
-			Name: name,
-		})
+	} else { // 已经存在，则添加版本号
+		item.Supported += 1 << yearIndex
 	}
 
 	return nil
 }
 
-func findItem(items []*db.Region, id string) *db.Region {
-	for _, item := range items {
-		if item.ID == id {
-			return item
+func filterZero(regionID ...string) []string {
+	for index, i := range regionID { // 过滤掉数组中的零值
+		if id.IsZero(i) {
+			regionID = regionID[:index]
+			break
 		}
 	}
-	panic(fmt.Sprintf("未在当前列表中找到 %s", id))
+	return regionID
 }
 
 func fileExists(path string) bool {

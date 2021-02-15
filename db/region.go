@@ -9,8 +9,6 @@ import (
 	"strconv"
 
 	"github.com/issue9/errwrap"
-
-	"github.com/issue9/cnregion/id"
 )
 
 // Region 表示单个区域
@@ -22,7 +20,7 @@ type Region struct {
 }
 
 func (reg *Region) findItem(regionID ...string) *Region {
-	if len(regionID) == 0 || id.IsZero(regionID[0]) {
+	if len(regionID) == 0 {
 		return reg
 	}
 

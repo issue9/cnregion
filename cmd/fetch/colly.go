@@ -14,6 +14,8 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/issue9/errwrap"
+
+	regionid "github.com/issue9/cnregion/id"
 )
 
 type files map[string][]*item
@@ -124,8 +126,8 @@ func trimID(id string) string {
 	}
 
 	l := len(id)
-	if l < 12 {
-		id += strings.Repeat("0", 12-l)
+	if l < regionid.Length {
+		id += strings.Repeat("0", regionid.Length-l)
 	}
 
 	return id

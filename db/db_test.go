@@ -68,17 +68,19 @@ func TestDB_LoadDump(t *testing.T) {
 func TestDB_Find(t *testing.T) {
 	a := assert.New(t)
 
-	r := obj.Find("340100000000")
+	r := obj.Find("34", "01")
 	a.NotNil(r).Equal(r.Name, "合肥")
 
-	r = obj.Find("340000000000")
-	a.NotNil(r).Equal(r.Name, "安徽")
-
-	// 不存在于 obj
-	r = obj.Find("990000000000")
+	r = obj.Find("34", "01", "00")
 	a.Nil(r)
 
-	a.Panic(func() {
-		obj.Find("")
-	})
+	r = obj.Find("34")
+	a.NotNil(r).Equal(r.Name, "安徽")
+
+	r = obj.Find()
+	a.NotNil(r).Equal(r.Name, "中国")
+
+	// 不存在于 obj
+	a.Nil(obj.Find("99"))
+	a.Nil(obj.Find(""))
 }
