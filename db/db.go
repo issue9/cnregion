@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/issue9/cnregion/id"
 	"github.com/issue9/errwrap"
 )
 
@@ -49,6 +50,12 @@ func Unmarshal(data []byte) (*DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+// Find 查找指定 ID 对应的信息
+func (db *DB) Find(regionID string) *Region {
+	province, city, county, town, village := id.Split(regionID)
+	return db.findItem(province, city, county, town, village)
 }
 
 func (db *DB) marshal() ([]byte, error) {

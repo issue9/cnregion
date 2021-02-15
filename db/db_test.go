@@ -64,3 +64,21 @@ func TestDB_LoadDump(t *testing.T) {
 	a.NotError(err).NotNil(d)
 	a.Equal(d, obj)
 }
+
+func TestDB_Find(t *testing.T) {
+	a := assert.New(t)
+
+	r := obj.Find("340100000000")
+	a.NotNil(r).Equal(r.Name, "合肥")
+
+	r = obj.Find("340000000000")
+	a.NotNil(r).Equal(r.Name, "安徽")
+
+	// 不存在于 obj
+	r = obj.Find("990000000000")
+	a.Nil(r)
+
+	a.Panic(func() {
+		obj.Find("")
+	})
+}

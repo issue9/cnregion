@@ -9,6 +9,8 @@ import (
 	"strconv"
 
 	"github.com/issue9/errwrap"
+
+	"github.com/issue9/cnregion/id"
 )
 
 // Region 表示单个区域
@@ -17,6 +19,20 @@ type Region struct {
 	Name      string
 	Supported int // 支持的版本号
 	Items     []*Region
+}
+
+func (reg *Region) findItem(regionID ...string) *Region {
+	if len(regionID) == 0 || id.IsZero(regionID[0]) {
+		return reg
+	}
+
+	for _, item := range reg.Items {
+		if item.ID == regionID[0] {
+			return item.findItem(regionID[1:]...)
+		}
+	}
+
+	return nil
 }
 
 func (reg *Region) marshal(buf *errwrap.Buffer) error {
