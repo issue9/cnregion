@@ -28,7 +28,10 @@ func Load(file string) (*DB, error) {
 	return Unmarshal(data)
 }
 
-func (db *DB) versionIndex(year int) int {
+// VersionIndex 指定年份在 Versions 中的下标
+//
+// 如果不存在，返回 -1
+func (db *DB) VersionIndex(year int) int {
 	for i, v := range db.Versions {
 		if v == year {
 			return i

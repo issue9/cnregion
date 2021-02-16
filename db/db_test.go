@@ -85,10 +85,10 @@ func TestDB_Find(t *testing.T) {
 	a.Nil(obj.Find(""))
 }
 
-func TestDB_versionIndex(t *testing.T) {
+func TestDB_VersionIndex(t *testing.T) {
 	a := assert.New(t)
 
-	a.Equal(0, obj.versionIndex(2020))
-	a.Equal(1, obj.versionIndex(2019))
-	a.Equal(-1, obj.versionIndex(1990))
+	a.Equal(0, obj.VersionIndex(2020))
+	a.Equal(1, obj.VersionIndex(2019))
+	a.Equal(-1, obj.VersionIndex(1990))
 }

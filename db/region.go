@@ -21,7 +21,7 @@ type Region struct {
 
 // IsSupported 当前数据是否支持该年份
 func (reg *Region) IsSupported(db *DB, year int) bool {
-	index := db.versionIndex(year)
+	index := db.VersionIndex(year)
 	if index == -1 {
 		return false
 	}
@@ -32,7 +32,7 @@ func (reg *Region) IsSupported(db *DB, year int) bool {
 
 // AddItem 添加一条子项
 func (reg *Region) AddItem(db *DB, id, name string, year int) error {
-	index := db.versionIndex(year)
+	index := db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不支持该年份 %d 的数据", year)
 	}
@@ -53,7 +53,7 @@ func (reg *Region) AddItem(db *DB, id, name string, year int) error {
 
 // SetSupported 设置当前数据支持指定的年份
 func (reg *Region) SetSupported(db *DB, year int) error {
-	index := db.versionIndex(year)
+	index := db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不存在该年份 %d 的数据", year)
 	}
