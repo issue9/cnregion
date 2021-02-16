@@ -28,6 +28,15 @@ func Load(file string) (*DB, error) {
 	return Unmarshal(data)
 }
 
+func (db *DB) versionIndex(year int) int {
+	for i, v := range db.Versions {
+		if v == year {
+			return i
+		}
+	}
+	return -1
+}
+
 // Dump 输出到文件
 func (db *DB) Dump(file string) error {
 	data, err := Marshal(db)

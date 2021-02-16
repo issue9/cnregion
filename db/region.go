@@ -19,6 +19,52 @@ type Region struct {
 	Items     []*Region
 }
 
+// IsSupported 当前数据是否支持该年份
+func (reg *Region) IsSupported(db *DB, year int) bool {
+	index := db.versionIndex(year)
+	if index == -1 {
+		return false
+	}
+
+	flag := 1 << index
+	return reg.Supported&flag == flag
+}
+
+// AddItem 添加一条子项
+func (reg *Region) AddItem(db *DB, id, name string, year int) error {
+	index := db.versionIndex(year)
+	if index == -1 {
+		return fmt.Errorf("不支持该年份 %d 的数据", year)
+	}
+
+	for _, item := range reg.Items {
+		if item.ID == id {
+			return fmt.Errorf("已经存在相同 ID 的数据项：%s", id)
+		}
+	}
+
+	reg.Items = append(reg.Items, &Region{
+		ID:        id,
+		Name:      name,
+		Supported: 1 << index,
+	})
+	return nil
+}
+
+// SetSupported 设置当前数据支持指定的年份
+func (reg *Region) SetSupported(db *DB, year int) error {
+	index := db.versionIndex(year)
+	if index == -1 {
+		return fmt.Errorf("不存在该年份 %d 的数据", year)
+	}
+
+	flag := 1 << index
+	if reg.Supported&flag == 0 {
+		reg.Supported += flag
+	}
+	return nil
+}
+
 func (reg *Region) findItem(regionID ...string) *Region {
 	if len(regionID) == 0 {
 		return reg

@@ -10,7 +10,7 @@ import (
 	"github.com/issue9/assert"
 )
 
-var data = []byte(`[2020,2019]::中国:1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:1:0{}02:芜湖:1:0{}}}`)
+var data = []byte(`[2020,2019]::中国:1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
 
 var obj = &DB{
 	Versions: []int{2020, 2019},
@@ -31,7 +31,7 @@ var obj = &DB{
 					{
 						ID:        "01",
 						Name:      "合肥",
-						Supported: 1,
+						Supported: 3,
 					},
 					{
 						ID:        "02",
@@ -83,4 +83,12 @@ func TestDB_Find(t *testing.T) {
 	// 不存在于 obj
 	a.Nil(obj.Find("99"))
 	a.Nil(obj.Find(""))
+}
+
+func TestDB_versionIndex(t *testing.T) {
+	a := assert.New(t)
+
+	a.Equal(0, obj.versionIndex(2020))
+	a.Equal(1, obj.versionIndex(2019))
+	a.Equal(-1, obj.versionIndex(1990))
 }

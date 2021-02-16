@@ -58,8 +58,6 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 	y := strconv.Itoa(year)
 	dataDir = filepath.Join(dataDir, y)
 
-	yearIndex := len(d.Versions) - 1
-
 	return filepath.Walk(dataDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -84,7 +82,7 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 			}
 			id, name := vals[0], vals[1]
 
-			if err := appendDB(d, yearIndex, id, name); err != nil {
+			if err := appendDB(d, year, id, name); err != nil {
 				return err
 			}
 		}
@@ -93,22 +91,17 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 	})
 }
 
-func appendDB(d *db.DB, yearIndex int, regionID, name string) error {
+func appendDB(d *db.DB, year int, regionID, name string) error {
 	province, city, county, town, village := id.Split(regionID)
 	list := filterZero(province, city, county, town, village)
 	item := d.Find(list...)
+
 	if item == nil {
 		item = d.Find(list[:len(list)-1]...) // 上一级
-		item.Items = append(item.Items, &db.Region{
-			ID:        list[len(list)-1],
-			Name:      name,
-			Supported: 1 << yearIndex,
-		})
-	} else { // 已经存在，则添加版本号
-		item.Supported += 1 << yearIndex
+		return item.AddItem(d, list[len(list)-1], name, year)
 	}
 
-	return nil
+	return item.SetSupported(d, year)
 }
 
 func filterZero(regionID ...string) []string {
