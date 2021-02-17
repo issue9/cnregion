@@ -97,32 +97,26 @@ func (reg *Region) marshal(buf *errwrap.Buffer) error {
 }
 
 func (reg *Region) unmarshal(data []byte, parentName, separator string) error {
-	index := indexByte(data, ':')
-	reg.ID = string(data[:index])
+	data, reg.ID = indexBytes(data, ':')
 
-	data = data[index+1:]
-	index = indexByte(data, ':')
-	reg.Name = string(data[:index])
+	data, reg.Name = indexBytes(data, ':')
 	reg.FullName = reg.Name
 	if parentName != "" {
 		reg.FullName = parentName + separator + reg.Name
 	}
-	data = data[index+1:]
 
-	index = indexByte(data, ':')
-	supperted, err := strconv.Atoi(string(data[:index]))
+	data, val := indexBytes(data, ':')
+	supperted, err := strconv.Atoi(val)
 	if err != nil {
 		return err
 	}
 	reg.Supported = supperted
-	data = data[index+1:]
 
-	index = indexByte(data, '{')
-	size, err := strconv.Atoi(string(data[:index]))
+	data, val = indexBytes(data, '{')
+	size, err := strconv.Atoi(val)
 	if err != nil {
 		return err
 	}
-	data = data[index+1:]
 
 	if size > 0 {
 		for i := 0; i < size; i++ {
@@ -143,12 +137,13 @@ func (reg *Region) unmarshal(data []byte, parentName, separator string) error {
 	return nil
 }
 
-func indexByte(data []byte, b byte) int {
+func indexBytes(data []byte, b byte) ([]byte, string) {
 	index := bytes.IndexByte(data, b)
 	if index == -1 {
 		panic(fmt.Sprintf("在%s未找到：%s", string(data), string(b)))
 	}
-	return index
+
+	return data[index+1:], string(data[:index])
 }
 
 func findEnd(data []byte) int {
