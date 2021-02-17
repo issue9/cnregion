@@ -38,5 +38,5 @@ func TestIsZero(t *testing.T) {
 
 	a.True(IsZero("000"))
 	a.False(IsZero("00x"))
-	a.False(IsZero(""))
+	a.True(IsZero(""))
 }
