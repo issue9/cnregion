@@ -70,6 +70,11 @@ func TestDB_LoadDump(t *testing.T) {
 	a.NotError(obj.Dump(path, false))
 	d, err := Load(path, "-", false)
 	a.NotError(err).NotNil(d)
+
+	path = filepath.Join(os.TempDir(), "cnregion_db_compress.dict")
+	a.NotError(obj.Dump(path, true))
+	d, err = Load(path, "-", true)
+	a.NotError(err).NotNil(d)
 }
 
 func TestDB_Find(t *testing.T) {

@@ -41,7 +41,7 @@ func Load(file, separator string, compress bool) (*DB, error) {
 	}
 
 	if compress {
-		rd, err := gzip.NewReader(bytes.NewBuffer(data))
+		rd, err := gzip.NewReader(bytes.NewReader(data))
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +90,7 @@ func (db *DB) Dump(file string, compress bool) error {
 		if _, err = w.Write(data); err != nil {
 			return err
 		}
-		if err = w.Flush(); err != nil {
+		if err = w.Close(); err != nil {
 			return err
 		}
 
