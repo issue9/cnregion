@@ -5,6 +5,7 @@ package db
 
 import (
 	"bytes"
+	"compress/gzip"
 	"errors"
 	"io/ioutil"
 	"os"
@@ -33,10 +34,22 @@ type DB struct {
 }
 
 // Load 从数据库文件加载数据
-func Load(file, separator string) (*DB, error) {
+func Load(file, separator string, compress bool) (*DB, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
+	}
+
+	if compress {
+		rd, err := gzip.NewReader(bytes.NewBuffer(data))
+		if err != nil {
+			return nil, err
+		}
+
+		data, err = ioutil.ReadAll(rd)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return Unmarshal(data, separator)
@@ -54,12 +67,36 @@ func (db *DB) VersionIndex(year int) int {
 	return -1
 }
 
+// AddVersion 添加新的版本号
+func (db *DB) AddVersion(year int) (exists bool) {
+	if db.VersionIndex(year) > -1 { // 检测 year 是否已经存在？
+		return true
+	}
+
+	db.versions = append(db.versions, year)
+	return false
+}
+
 // Dump 输出到文件
-func (db *DB) Dump(file string) error {
+func (db *DB) Dump(file string, compress bool) error {
 	data, err := Marshal(db)
 	if err != nil {
 		return err
 	}
+
+	if compress {
+		buf := new(bytes.Buffer)
+		w := gzip.NewWriter(buf)
+		if _, err = w.Write(data); err != nil {
+			return err
+		}
+		if err = w.Flush(); err != nil {
+			return err
+		}
+
+		data = buf.Bytes()
+	}
+
 	return ioutil.WriteFile(file, data, os.ModePerm)
 }
 

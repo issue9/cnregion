@@ -67,8 +67,8 @@ func TestDB_LoadDump(t *testing.T) {
 	a := assert.New(t)
 
 	path := filepath.Join(os.TempDir(), "cnregion_db.dict")
-	a.NotError(obj.Dump(path))
-	d, err := Load(path, "-")
+	a.NotError(obj.Dump(path, false))
+	d, err := Load(path, "-", false)
 	a.NotError(err).NotNil(d)
 }
 

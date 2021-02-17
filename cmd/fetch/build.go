@@ -17,7 +17,7 @@ import (
 	"github.com/issue9/cnregion/version"
 )
 
-func build(dataDir string, output string, years ...int) error {
+func build(dataDir, output string, years ...int) error {
 	if len(years) == 0 {
 		years = version.All()
 	}
@@ -25,7 +25,7 @@ func build(dataDir string, output string, years ...int) error {
 	var d *db.DB
 
 	if fileExists(output) {
-		dd, err := db.Load(output)
+		dd, err := db.Load(output, "", true)
 		if err != nil {
 			return err
 		}
@@ -40,20 +40,15 @@ func build(dataDir string, output string, years ...int) error {
 		}
 	}
 
-	return d.Dump(output)
+	return d.Dump(output, true)
 }
 
 func buildYear(d *db.DB, dataDir string, year int) error {
-	for _, v := range d.Versions { // 检测 year 是否已经存在？
-		if v == year {
-			fmt.Printf("年份 %d 已经存在，忽略该数据\n", year)
-			return nil
-		}
+	fmt.Printf("\n添加 %d 的数据\n", year)
+	if d.AddVersion(year) {
+		fmt.Printf("已经存在该年份 %d 的数据\n\n", year)
+		return nil
 	}
-
-	fmt.Printf("添加 %d 的数据\n", year)
-
-	d.Versions = append(d.Versions, year)
 
 	y := strconv.Itoa(year)
 	dataDir = filepath.Join(dataDir, y)
