@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-// Package db 提供区域数据库的相关操作
+// Package db 提供区域数据文件的相关操作
 package db
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -12,6 +13,14 @@ import (
 
 	"github.com/issue9/errwrap"
 )
+
+// Version 数据文件的版本号
+const Version = 1
+
+// ErrIncompatible 数据文件版本不兼容
+//
+// 当数据文件中指定的版本号与当前的 Version 不相等时，返回此错误。
+var ErrIncompatible = errors.New("数据文件版本不兼容")
 
 // DB 区域数据库信息
 type DB struct {
@@ -82,6 +91,8 @@ func (db *DB) marshal() ([]byte, error) {
 	}
 
 	buf := errwrap.Buffer{Buffer: bytes.Buffer{}}
+	buf.WString(strconv.Itoa(Version)).WByte(':')
+
 	buf.WByte('[')
 	buf.WriteString(strings.Join(vers, ","))
 	buf.WByte(']').WByte(':')
@@ -98,11 +109,19 @@ func (db *DB) marshal() ([]byte, error) {
 }
 
 func (db *DB) unmarshal(data []byte) error {
-	index := bytes.IndexByte(data, ':')
-	arr := bytes.Trim(data[:index], "[]")
-	arrs := strings.Split(string(arr), ",")
-	db.versions = make([]int, 0, len(arrs))
-	for _, item := range arrs {
+	data, val := indexBytes(data, ':')
+	ver, err := strconv.Atoi(val)
+	if err != nil {
+		return err
+	}
+	if ver != Version {
+		return ErrIncompatible
+	}
+
+	data, val = indexBytes(data, ':')
+	arr := strings.Split(strings.Trim(val, "[]"), ",")
+	db.versions = make([]int, 0, len(arr))
+	for _, item := range arr {
 		v, err := strconv.Atoi(item)
 		if err != nil {
 			return err
@@ -110,7 +129,6 @@ func (db *DB) unmarshal(data []byte) error {
 		db.versions = append(db.versions, v)
 	}
 
-	data = data[index+1:]
 	db.Region = &Region{}
 	return db.Region.unmarshal(data, "", db.fullNameSeparator)
 }

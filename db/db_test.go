@@ -10,7 +10,7 @@ import (
 	"github.com/issue9/assert"
 )
 
-var data = []byte(`[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
+var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
 
 var obj = &DB{
 	versions:          []int{2020, 2019},
@@ -58,6 +58,9 @@ func TestMarshal(t *testing.T) {
 	d1, err := Marshal(obj)
 	a.NotError(err).NotNil(d1)
 	a.Equal(string(d1), string(data))
+
+	_, err = Unmarshal([]byte("100:[2020]:::1:0{}"), "-")
+	a.Equal(err, ErrIncompatible)
 }
 
 func TestDB_LoadDump(t *testing.T) {
