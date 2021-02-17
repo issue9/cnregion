@@ -13,8 +13,8 @@ import (
 var data = []byte(`[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
 
 var obj = &DB{
-	Versions:          []int{2020, 2019},
-	FullNameSeparator: "-",
+	versions:          []int{2020, 2019},
+	fullNameSeparator: "-",
 	Region: &Region{
 		Name:      "",
 		Supported: 1,

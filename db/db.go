@@ -16,11 +16,11 @@ import (
 // DB 区域数据库信息
 type DB struct {
 	*Region
-	Versions []int // 支持的版本
+	versions []int // 支持的版本
 
 	// 以下数据不会写入数据文件中
 
-	FullNameSeparator string
+	fullNameSeparator string
 }
 
 // Load 从数据库文件加载数据
@@ -37,7 +37,7 @@ func Load(file, separator string) (*DB, error) {
 //
 // 如果不存在，返回 -1
 func (db *DB) VersionIndex(year int) int {
-	for i, v := range db.Versions {
+	for i, v := range db.versions {
 		if v == year {
 			return i
 		}
@@ -62,7 +62,7 @@ func Marshal(db *DB) ([]byte, error) {
 // Unmarshal 解码 data 至 DB
 func Unmarshal(data []byte, separator string) (*DB, error) {
 	db := &DB{
-		FullNameSeparator: separator,
+		fullNameSeparator: separator,
 	}
 	if err := db.unmarshal(data); err != nil {
 		return nil, err
@@ -76,8 +76,8 @@ func (db *DB) Find(id ...string) *Region {
 }
 
 func (db *DB) marshal() ([]byte, error) {
-	vers := make([]string, 0, len(db.Versions))
-	for _, v := range db.Versions {
+	vers := make([]string, 0, len(db.versions))
+	for _, v := range db.versions {
 		vers = append(vers, strconv.Itoa(v))
 	}
 
@@ -101,16 +101,16 @@ func (db *DB) unmarshal(data []byte) error {
 	index := bytes.IndexByte(data, ':')
 	arr := bytes.Trim(data[:index], "[]")
 	arrs := strings.Split(string(arr), ",")
-	db.Versions = make([]int, 0, len(arrs))
+	db.versions = make([]int, 0, len(arrs))
 	for _, item := range arrs {
 		v, err := strconv.Atoi(item)
 		if err != nil {
 			return err
 		}
-		db.Versions = append(db.Versions, v)
+		db.versions = append(db.versions, v)
 	}
 
 	data = data[index+1:]
 	db.Region = &Region{}
-	return db.Region.unmarshal(data, "", db.FullNameSeparator)
+	return db.Region.unmarshal(data, "", db.fullNameSeparator)
 }
