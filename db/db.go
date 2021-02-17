@@ -17,15 +17,20 @@ import (
 type DB struct {
 	*Region
 	Versions []int // 支持的版本
+
+	// 以下数据不会写入数据文件中
+
+	FullNameSeparator string
 }
 
 // Load 从数据库文件加载数据
-func Load(file string) (*DB, error) {
+func Load(file, separator string) (*DB, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	return Unmarshal(data)
+
+	return Unmarshal(data, separator)
 }
 
 // VersionIndex 指定年份在 Versions 中的下标
@@ -55,8 +60,10 @@ func Marshal(db *DB) ([]byte, error) {
 }
 
 // Unmarshal 解码 data 至 DB
-func Unmarshal(data []byte) (*DB, error) {
-	db := &DB{}
+func Unmarshal(data []byte, separator string) (*DB, error) {
+	db := &DB{
+		FullNameSeparator: separator,
+	}
 	if err := db.unmarshal(data); err != nil {
 		return nil, err
 	}
@@ -105,5 +112,5 @@ func (db *DB) unmarshal(data []byte) error {
 
 	data = data[index+1:]
 	db.Region = &Region{}
-	return db.Region.unmarshal(data)
+	return db.Region.unmarshal(data, "", db.FullNameSeparator)
 }

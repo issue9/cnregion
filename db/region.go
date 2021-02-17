@@ -17,6 +17,10 @@ type Region struct {
 	Name      string
 	Supported int // 支持的版本号
 	Items     []*Region
+
+	// 以下数据不会写入数据文件中
+
+	FullName string // 全名
 }
 
 // IsSupported 当前数据是否支持该年份
@@ -92,13 +96,17 @@ func (reg *Region) marshal(buf *errwrap.Buffer) error {
 	return nil
 }
 
-func (reg *Region) unmarshal(data []byte) error {
+func (reg *Region) unmarshal(data []byte, parentName, separator string) error {
 	index := indexByte(data, ':')
 	reg.ID = string(data[:index])
 
 	data = data[index+1:]
 	index = indexByte(data, ':')
 	reg.Name = string(data[:index])
+	reg.FullName = reg.Name
+	if parentName != "" {
+		reg.FullName = parentName + separator + reg.Name
+	}
 	data = data[index+1:]
 
 	index = indexByte(data, ':')
@@ -124,7 +132,7 @@ func (reg *Region) unmarshal(data []byte) error {
 			}
 
 			item := &Region{}
-			if err := item.unmarshal(data[:index]); err != nil {
+			if err := item.unmarshal(data[:index], reg.FullName, separator); err != nil {
 				return err
 			}
 			reg.Items = append(reg.Items, item)

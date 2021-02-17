@@ -10,33 +10,38 @@ import (
 	"github.com/issue9/assert"
 )
 
-var data = []byte(`[2020,2019]::中国:1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
+var data = []byte(`[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
 
 var obj = &DB{
-	Versions: []int{2020, 2019},
+	Versions:          []int{2020, 2019},
+	FullNameSeparator: "-",
 	Region: &Region{
-		Name:      "中国",
+		Name:      "",
 		Supported: 1,
 		Items: []*Region{
 			{
 				ID:        "33",
 				Name:      "浙江",
 				Supported: 1,
+				FullName:  "浙江",
 			},
 			{
 				ID:        "34",
 				Name:      "安徽",
+				FullName:  "安徽",
 				Supported: 1,
 				Items: []*Region{
 					{
 						ID:        "01",
 						Name:      "合肥",
 						Supported: 3,
+						FullName:  "安徽-合肥",
 					},
 					{
 						ID:        "02",
 						Name:      "芜湖",
 						Supported: 1,
+						FullName:  "安徽-芜湖",
 					},
 				},
 			},
@@ -47,7 +52,7 @@ var obj = &DB{
 func TestMarshal(t *testing.T) {
 	a := assert.New(t)
 
-	o1, err := Unmarshal(data)
+	o1, err := Unmarshal(data, "-")
 	a.NotError(err).Equal(o1, obj)
 
 	d1, err := Marshal(obj)
@@ -60,25 +65,24 @@ func TestDB_LoadDump(t *testing.T) {
 
 	path := filepath.Join(os.TempDir(), "cnregion_db.dict")
 	a.NotError(obj.Dump(path))
-	d, err := Load(path)
+	d, err := Load(path, "-")
 	a.NotError(err).NotNil(d)
-	a.Equal(d, obj)
 }
 
 func TestDB_Find(t *testing.T) {
 	a := assert.New(t)
 
 	r := obj.Find("34", "01")
-	a.NotNil(r).Equal(r.Name, "合肥")
+	a.NotNil(r).Equal(r.Name, "合肥").Equal(r.FullName, "安徽-合肥")
 
 	r = obj.Find("34", "01", "00")
 	a.Nil(r)
 
 	r = obj.Find("34")
-	a.NotNil(r).Equal(r.Name, "安徽")
+	a.NotNil(r).Equal(r.Name, "安徽").Equal(r.FullName, "安徽")
 
 	r = obj.Find()
-	a.NotNil(r).Equal(r.Name, "中国")
+	a.NotNil(r).Equal(r.Name, "").Equal(r.FullName, "")
 
 	// 不存在于 obj
 	a.Nil(obj.Find("99"))
