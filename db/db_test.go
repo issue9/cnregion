@@ -15,7 +15,7 @@ var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:
 var obj = &DB{
 	versions:          []int{2020, 2019},
 	fullNameSeparator: "-",
-	Region: &Region{
+	region: &Region{
 		Name:      "",
 		Supported: 1,
 		Items: []*Region{
@@ -68,12 +68,12 @@ func TestDB_LoadDump(t *testing.T) {
 
 	path := filepath.Join(os.TempDir(), "cnregion_db.dict")
 	a.NotError(obj.Dump(path, false))
-	d, err := Load(path, "-", false)
+	d, err := LoadFile(path, "-", false)
 	a.NotError(err).NotNil(d)
 
 	path = filepath.Join(os.TempDir(), "cnregion_db_compress.dict")
 	a.NotError(obj.Dump(path, true))
-	d, err = Load(path, "-", true)
+	d, err = LoadFile(path, "-", true)
 	a.NotError(err).NotNil(d)
 }
 

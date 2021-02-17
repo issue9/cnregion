@@ -25,7 +25,7 @@ var ErrIncompatible = errors.New("数据文件版本不兼容")
 
 // DB 区域数据库信息
 type DB struct {
-	*Region
+	region   *Region
 	versions []int // 支持的版本
 
 	// 以下数据不会写入数据文件中
@@ -33,13 +33,16 @@ type DB struct {
 	fullNameSeparator string
 }
 
-// Load 从数据库文件加载数据
-func Load(file, separator string, compress bool) (*DB, error) {
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, err
+// New 返回 DB 的空对象
+func New() *DB {
+	return &DB{
+		region:   &Region{},
+		versions: []int{},
 	}
+}
 
+// Load 返回 DB 对象
+func Load(data []byte, separator string, compress bool) (*DB, error) {
 	if compress {
 		rd, err := gzip.NewReader(bytes.NewReader(data))
 		if err != nil {
@@ -55,26 +58,13 @@ func Load(file, separator string, compress bool) (*DB, error) {
 	return Unmarshal(data, separator)
 }
 
-// VersionIndex 指定年份在 Versions 中的下标
-//
-// 如果不存在，返回 -1
-func (db *DB) VersionIndex(year int) int {
-	for i, v := range db.versions {
-		if v == year {
-			return i
-		}
+// LoadFile 从数据文件加载数据
+func LoadFile(file, separator string, compress bool) (*DB, error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, err
 	}
-	return -1
-}
-
-// AddVersion 添加新的版本号
-func (db *DB) AddVersion(year int) (exists bool) {
-	if db.VersionIndex(year) > -1 { // 检测 year 是否已经存在？
-		return true
-	}
-
-	db.versions = append(db.versions, year)
-	return false
+	return Load(data, separator, compress)
 }
 
 // Dump 输出到文件
@@ -116,9 +106,31 @@ func Unmarshal(data []byte, separator string) (*DB, error) {
 	return db, nil
 }
 
+// VersionIndex 指定年份在 Versions 中的下标
+//
+// 如果不存在，返回 -1
+func (db *DB) VersionIndex(year int) int {
+	for i, v := range db.versions {
+		if v == year {
+			return i
+		}
+	}
+	return -1
+}
+
+// AddVersion 添加新的版本号
+func (db *DB) AddVersion(year int) (exists bool) {
+	if db.VersionIndex(year) > -1 { // 检测 year 是否已经存在？
+		return true
+	}
+
+	db.versions = append(db.versions, year)
+	return false
+}
+
 // Find 查找指定 ID 对应的信息
 func (db *DB) Find(id ...string) *Region {
-	return db.findItem(id...)
+	return db.region.findItem(id...)
 }
 
 func (db *DB) marshal() ([]byte, error) {
@@ -134,7 +146,7 @@ func (db *DB) marshal() ([]byte, error) {
 	buf.WriteString(strings.Join(vers, ","))
 	buf.WByte(']').WByte(':')
 
-	err := db.Region.marshal(&buf)
+	err := db.region.marshal(&buf)
 	if err != nil {
 		return nil, err
 	}
@@ -166,6 +178,6 @@ func (db *DB) unmarshal(data []byte) error {
 		db.versions = append(db.versions, v)
 	}
 
-	db.Region = &Region{}
-	return db.Region.unmarshal(data, "", db.fullNameSeparator)
+	db.region = &Region{}
+	return db.region.unmarshal(data, "", db.fullNameSeparator)
 }

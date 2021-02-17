@@ -18,22 +18,11 @@ import (
 )
 
 func build(dataDir, output string, years ...int) error {
+	d := db.New()
+
 	if len(years) == 0 {
 		years = version.All()
 	}
-
-	var d *db.DB
-
-	if fileExists(output) {
-		dd, err := db.Load(output, "", true)
-		if err != nil {
-			return err
-		}
-		d = dd
-	} else {
-		d = &db.DB{Region: &db.Region{}}
-	}
-
 	for _, year := range years {
 		if err := buildYear(d, dataDir, year); err != nil {
 			return err

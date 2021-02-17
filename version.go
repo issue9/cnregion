@@ -28,9 +28,19 @@ func New(db *db.DB, version int) *Version {
 	}
 }
 
-// Load 从 path 加载数据并初始化 Version 实例
-func Load(path, separator string, version int) (*Version, error) {
-	d, err := db.Load(path, separator, true)
+// Load 加载 data 数据初始化 Version 实例
+func Load(data []byte, separator string, version int) (*Version, error) {
+	d, err := db.Load(data, separator, true)
+	if err != nil {
+		return nil, err
+	}
+
+	return New(d, version), nil
+}
+
+// LoadFile 从 path 加载数据并初始化 Version 实例
+func LoadFile(path, separator string, version int) (*Version, error) {
+	d, err := db.LoadFile(path, separator, true)
 	if err != nil {
 		return nil, err
 	}

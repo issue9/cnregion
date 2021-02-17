@@ -16,7 +16,16 @@ type Region struct {
 func (v *Version) Find(regionID string) *Region {
 	province, city, county, town, village := id.Split(regionID)
 
-	dr := v.db.Find(province, city, county, town, village)
+	// 过滤掉零值
+	items := []string{province, city, county, town, village}
+	for index, item := range items {
+		if id.IsZero(item) {
+			items = items[:index]
+			break
+		}
+	}
+
+	dr := v.db.Find(items...)
 	if dr == nil || !dr.IsSupported(v.db, v.version) {
 		return nil
 	}
