@@ -53,7 +53,12 @@ func TestMarshal(t *testing.T) {
 	a := assert.New(t)
 
 	o1, err := Unmarshal(data, "-")
-	a.NotError(err).Equal(o1, obj)
+	a.NotError(err).
+		Equal(o1.fullNameSeparator, obj.fullNameSeparator).
+		Equal(o1.versions, obj.versions).
+		Equal(len(o1.region.Items), len(obj.region.Items)).
+		Equal(o1.region.Items[0].ID, obj.region.Items[0].ID).
+		Equal(o1.region.Items[1].Items[0].ID, obj.region.Items[1].Items[0].ID)
 
 	d1, err := Marshal(obj)
 	a.NotError(err).NotNil(d1)

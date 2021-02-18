@@ -26,7 +26,7 @@ func (v *Version) Find(regionID string) *Region {
 	}
 
 	dr := v.db.Find(items...)
-	if dr == nil || !dr.IsSupported(v.db, v.version) {
+	if dr == nil || !dr.IsSupported(v.version) {
 		return nil
 	}
 

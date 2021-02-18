@@ -35,10 +35,12 @@ type DB struct {
 
 // New 返回 DB 的空对象
 func New() *DB {
-	return &DB{
-		region:   &Region{},
+	db := &DB{
 		versions: []int{},
 	}
+	db.region = &Region{db: db}
+
+	return db
 }
 
 // Load 返回 DB 对象
@@ -178,6 +180,6 @@ func (db *DB) unmarshal(data []byte) error {
 		db.versions = append(db.versions, v)
 	}
 
-	db.region = &Region{}
-	return db.region.unmarshal(data, "", db.fullNameSeparator)
+	db.region = &Region{db: db}
+	return db.region.unmarshal(data, "")
 }

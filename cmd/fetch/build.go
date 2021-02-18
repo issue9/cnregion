@@ -82,10 +82,10 @@ func appendDB(d *db.DB, year int, regionID, name string) error {
 
 	if item == nil {
 		item = d.Find(list[:len(list)-1]...) // 上一级
-		return item.AddItem(d, list[len(list)-1], name, year)
+		return item.AddItem(list[len(list)-1], name, year)
 	}
 
-	return item.SetSupported(d, year)
+	return item.SetSupported(year)
 }
 
 func filterZero(regionID ...string) []string {

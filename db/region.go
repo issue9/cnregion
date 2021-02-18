@@ -21,11 +21,12 @@ type Region struct {
 	// 以下数据不会写入数据文件中
 
 	FullName string // 全名
+	db       *DB
 }
 
 // IsSupported 当前数据是否支持该年份
-func (reg *Region) IsSupported(db *DB, year int) bool {
-	index := db.VersionIndex(year)
+func (reg *Region) IsSupported(year int) bool {
+	index := reg.db.VersionIndex(year)
 	if index == -1 {
 		return false
 	}
@@ -35,8 +36,8 @@ func (reg *Region) IsSupported(db *DB, year int) bool {
 }
 
 // AddItem 添加一条子项
-func (reg *Region) AddItem(db *DB, id, name string, year int) error {
-	index := db.VersionIndex(year)
+func (reg *Region) AddItem(id, name string, year int) error {
+	index := reg.db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不支持该年份 %d 的数据", year)
 	}
@@ -48,6 +49,7 @@ func (reg *Region) AddItem(db *DB, id, name string, year int) error {
 	}
 
 	reg.Items = append(reg.Items, &Region{
+		db:        reg.db,
 		ID:        id,
 		Name:      name,
 		Supported: 1 << index,
@@ -56,8 +58,8 @@ func (reg *Region) AddItem(db *DB, id, name string, year int) error {
 }
 
 // SetSupported 设置当前数据支持指定的年份
-func (reg *Region) SetSupported(db *DB, year int) error {
-	index := db.VersionIndex(year)
+func (reg *Region) SetSupported(year int) error {
+	index := reg.db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不存在该年份 %d 的数据", year)
 	}
@@ -96,13 +98,13 @@ func (reg *Region) marshal(buf *errwrap.Buffer) error {
 	return nil
 }
 
-func (reg *Region) unmarshal(data []byte, parentName, separator string) error {
+func (reg *Region) unmarshal(data []byte, parentName string) error {
 	data, reg.ID = indexBytes(data, ':')
 
 	data, reg.Name = indexBytes(data, ':')
 	reg.FullName = reg.Name
 	if parentName != "" {
-		reg.FullName = parentName + separator + reg.Name
+		reg.FullName = parentName + reg.db.fullNameSeparator + reg.Name
 	}
 
 	data, val := indexBytes(data, ':')
@@ -125,8 +127,8 @@ func (reg *Region) unmarshal(data []byte, parentName, separator string) error {
 				return errors.New("未找到结束符号 }")
 			}
 
-			item := &Region{}
-			if err := item.unmarshal(data[:index], reg.FullName, separator); err != nil {
+			item := &Region{db: reg.db}
+			if err := item.unmarshal(data[:index], reg.FullName); err != nil {
 				return err
 			}
 			reg.Items = append(reg.Items, item)
