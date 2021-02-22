@@ -15,7 +15,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/issue9/errwrap"
 
-	regionid "github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/id"
 )
 
 type files map[string][]*item
@@ -118,17 +118,17 @@ func collect(dir string, buf *errwrap.Buffer, base string) error {
 	return fs.dump(dir)
 }
 
-func trimID(id string) string {
-	id = strings.TrimSuffix(id, ".html")
-	index := strings.LastIndexByte(id, '/')
+func trimID(regionID string) string {
+	regionID = strings.TrimSuffix(regionID, ".html")
+	index := strings.LastIndexByte(regionID, '/')
 	if index >= 0 {
-		id = id[index+1:]
+		regionID = regionID[index+1:]
 	}
 
-	l := len(id)
-	if l < regionid.Length {
-		id += strings.Repeat("0", regionid.Length-l)
+	l := len(regionID)
+	if l < id.Length(id.Village) {
+		regionID += strings.Repeat("0", id.Length(id.Village)-l)
 	}
 
-	return id
+	return regionID
 }
