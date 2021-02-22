@@ -10,8 +10,10 @@ import (
 
 // Version 用于描述与特定版本相关的区域数据
 type Version struct {
-	version int
-	db      *db.DB
+	version   int
+	db        *db.DB
+	provinces []Region
+	districts []Region
 }
 
 // New 返回 Version 实例
@@ -50,37 +52,43 @@ func LoadFile(path, separator string, version int) (*Version, error) {
 
 // Provinces 所有的顶级行政区域
 func (v *Version) Provinces() []Region {
-	root := v.db.Find()
-	return (&dbRegion{r: root}).Items()
+	if len(v.provinces) == 0 {
+		root := v.db.Find()
+		v.provinces = (&dbRegion{r: root}).Items()
+	}
+
+	return v.provinces
 }
 
 // Districts 按行政大区划分
 //
 // NOTE: 大区划分并不统一，按照各个省份的第一个数字进行划分。
 func (v *Version) Districts() []Region {
-	dMap := make(map[byte]*districtRegion, len(districtsMap))
-	provinces := v.Provinces()
+	if len(v.districts) == 0 {
+		dMap := make(map[byte]*districtRegion, len(districtsMap))
+		provinces := v.Provinces()
 
-	for k, v := range districtsMap {
-		dMap[k] = &districtRegion{
-			id:       string(k),
-			name:     v,
-			fullName: v,
-		}
+		for k, v := range districtsMap {
+			dMap[k] = &districtRegion{
+				id:       string(k),
+				name:     v,
+				fullName: v,
+			}
 
-		for _, p := range provinces {
-			if p.ID()[0] == k {
-				dMap[k].items = append(dMap[k].items, p)
+			for _, p := range provinces {
+				if p.ID()[0] == k {
+					dMap[k].items = append(dMap[k].items, p)
+				}
 			}
 		}
+
+		v.districts = make([]Region, 0, len(dMap))
+		for _, item := range dMap {
+			v.districts = append(v.districts, item)
+		}
 	}
 
-	districts := make([]Region, 0, len(dMap))
-	for _, v := range dMap {
-		districts = append(districts, v)
-	}
-
-	return districts
+	return v.districts
 }
 
 var districtsMap = map[byte]string{

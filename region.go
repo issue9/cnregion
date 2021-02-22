@@ -45,17 +45,9 @@ func (v *Version) Find(regionID string) Region {
 	return &dbRegion{r: dr}
 }
 
-func (r *dbRegion) ID() string {
-	return r.r.ID
-}
-
-func (r *dbRegion) Name() string {
-	return r.r.Name
-}
-
-func (r *dbRegion) FullName() string {
-	return r.r.FullName
-}
+func (r *dbRegion) ID() string       { return r.r.ID }
+func (r *dbRegion) Name() string     { return r.r.Name }
+func (r *dbRegion) FullName() string { return r.r.FullName }
 
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))

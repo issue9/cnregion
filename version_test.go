@@ -37,8 +37,10 @@ func TestVersion_Provinces(t *testing.T) {
 
 	v, err := LoadFile("./data/regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)
+	a.Equal(0, len(v.provinces))
 	provinces := v.Provinces()
 	a.Equal(31, len(provinces))
+	a.Equal(31, len(provinces)) // 第二次读了缓存内容
 
 	for _, p := range provinces {
 		if p.ID() == "33" {
@@ -52,7 +54,9 @@ func TestVersion_Districts(t *testing.T) {
 
 	v, err := LoadFile("./data/regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)
+	a.Equal(0, len(v.districts))
 	districts := v.Districts()
+	a.Equal(6, len(districts))
 	a.Equal(6, len(districts))
 
 	for _, d := range districts {
