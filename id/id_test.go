@@ -38,7 +38,7 @@ func TestFill(t *testing.T) {
 func TestIsZero(t *testing.T) {
 	a := assert.New(t)
 
-	a.True(IsZero("000"))
-	a.False(IsZero("00x"))
-	a.True(IsZero(""))
+	a.True(isZero("000"))
+	a.False(isZero("00x"))
+	a.True(isZero(""))
 }

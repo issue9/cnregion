@@ -26,18 +26,7 @@ type districtRegion struct {
 
 // Find 查找指定 ID 所表示的 Region
 func (v *Version) Find(regionID string) Region {
-	province, city, county, town, village := id.Split(regionID)
-
-	// 过滤掉零值
-	items := []string{province, city, county, town, village}
-	for index, item := range items {
-		if id.IsZero(item) {
-			items = items[:index]
-			break
-		}
-	}
-
-	dr := v.db.Find(items...)
+	dr := v.db.Find(id.SplitFilter(regionID)...)
 	if dr == nil || !dr.IsSupported(v.version) {
 		return nil
 	}

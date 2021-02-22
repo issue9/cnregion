@@ -131,28 +131,21 @@ func (db *DB) Find(id ...string) *Region {
 	return db.region.findItem(id...)
 }
 
+var levelIndex = []id.Level{id.Province, id.City, id.County, id.Town, id.Village}
+
 // AddItem 添加一条子项
 func (db *DB) AddItem(regionID, name string, year int) error {
-	province, city, county, town, village := id.Split(regionID)
-	list := filterZero(province, city, county, town, village)
+	list := id.SplitFilter(regionID)
 	item := db.Find(list...)
 
 	if item == nil {
-		item = db.Find(list[:len(list)-1]...) // 上一级
-		return item.addItem(list[len(list)-1], name, year)
+		items := list[:len(list)-1] // 上一级
+		item = db.Find(items...)
+		level := levelIndex[len(items)]
+		return item.addItem(list[len(list)-1], name, level, year)
 	}
 
 	return item.SetSupported(year)
-}
-
-func filterZero(regionID ...string) []string {
-	for index, i := range regionID { // 过滤掉数组中的零值
-		if id.IsZero(i) {
-			regionID = regionID[:index]
-			break
-		}
-	}
-	return regionID
 }
 
 func (db *DB) marshal() ([]byte, error) {

@@ -38,7 +38,7 @@ func (reg *Region) IsSupported(year int) bool {
 	return reg.Supported&flag == flag
 }
 
-func (reg *Region) addItem(id, name string, year int) error {
+func (reg *Region) addItem(id, name string, level id.Level, year int) error {
 	index := reg.db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不支持该年份 %d 的数据", year)
@@ -55,6 +55,7 @@ func (reg *Region) addItem(id, name string, year int) error {
 		ID:        id,
 		Name:      name,
 		Supported: 1 << index,
+		level:     level,
 	})
 	return nil
 }

@@ -50,6 +50,22 @@ func Split(id string) (province, city, county, town, village string) {
 		id[Length(Town):Length(Village)]
 }
 
+// SplitFilter 将 id 按区域进行划分且过滤掉零值的区域
+func SplitFilter(id string) []string {
+	province, city, county, town, village := Split(id)
+	return filterZero(province, city, county, town, village)
+}
+
+func filterZero(id ...string) []string {
+	for index, i := range id { // 过滤掉数组中的零值
+		if isZero(i) {
+			id = id[:index]
+			break
+		}
+	}
+	return id
+}
+
 // Fill 为 id 填充后缀的 0
 func Fill(id string, level Level) string {
 	rem := Length(level) - len(id)
@@ -63,8 +79,8 @@ func Fill(id string, level Level) string {
 	}
 }
 
-// IsZero 判断一组字符串是否都由 0 组成
-func IsZero(id string) bool {
+// isZero 判断一组字符串是否都由 0 组成
+func isZero(id string) bool {
 	for _, r := range id {
 		if r != '0' {
 			return false
