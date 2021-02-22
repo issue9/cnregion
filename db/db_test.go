@@ -60,7 +60,7 @@ func TestMarshal(t *testing.T) {
 		Equal(o1.region.Items[0].ID, obj.region.Items[0].ID).
 		Equal(o1.region.Items[1].Items[0].ID, obj.region.Items[1].Items[0].ID)
 
-	d1, err := Marshal(obj)
+	d1, err := obj.marshal()
 	a.NotError(err).NotNil(d1)
 	a.Equal(string(d1), string(data))
 
@@ -95,7 +95,7 @@ func TestDB_Find(t *testing.T) {
 	a.NotNil(r).Equal(r.Name, "安徽").Equal(r.FullName, "安徽")
 
 	r = obj.Find()
-	a.NotNil(r).Equal(r.Name, "").Equal(r.FullName, "")
+	a.NotNil(r).Equal(r.Name, "").Equal(r.FullName, "").Equal(2, len(r.Items))
 
 	// 不存在于 obj
 	a.Nil(obj.Find("99"))

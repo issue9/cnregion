@@ -71,7 +71,7 @@ func LoadFile(file, separator string, compress bool) (*DB, error) {
 
 // Dump 输出到文件
 func (db *DB) Dump(file string, compress bool) error {
-	data, err := Marshal(db)
+	data, err := db.marshal()
 	if err != nil {
 		return err
 	}
@@ -90,11 +90,6 @@ func (db *DB) Dump(file string, compress bool) error {
 	}
 
 	return ioutil.WriteFile(file, data, os.ModePerm)
-}
-
-// Marshal 将 DB 转换成 []byte
-func Marshal(db *DB) ([]byte, error) {
-	return db.marshal()
 }
 
 // Unmarshal 解码 data 至 DB
