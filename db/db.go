@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/issue9/cnregion/id"
 	"github.com/issue9/errwrap"
 )
 
@@ -128,6 +129,30 @@ func (db *DB) AddVersion(year int) (exists bool) {
 // Find 查找指定 ID 对应的信息
 func (db *DB) Find(id ...string) *Region {
 	return db.region.findItem(id...)
+}
+
+// AddItem 添加一条子项
+func (db *DB) AddItem(regionID, name string, year int) error {
+	province, city, county, town, village := id.Split(regionID)
+	list := filterZero(province, city, county, town, village)
+	item := db.Find(list...)
+
+	if item == nil {
+		item = db.Find(list[:len(list)-1]...) // 上一级
+		return item.addItem(list[len(list)-1], name, year)
+	}
+
+	return item.SetSupported(year)
+}
+
+func filterZero(regionID ...string) []string {
+	for index, i := range regionID { // 过滤掉数组中的零值
+		if id.IsZero(i) {
+			regionID = regionID[:index]
+			break
+		}
+	}
+	return regionID
 }
 
 func (db *DB) marshal() ([]byte, error) {

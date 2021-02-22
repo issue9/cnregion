@@ -28,7 +28,7 @@ var lengths = map[Level]int{
 	Province: 2,
 }
 
-// Length 获取各个类型 ID 的实际有效果长度
+// Length 获取各个类型 ID 的有效果长度
 func Length(level Level) int {
 	if _, found := lengths[level]; !found {
 		panic("无效的 level 参数")

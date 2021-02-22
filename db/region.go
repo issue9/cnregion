@@ -9,6 +9,8 @@ import (
 	"strconv"
 
 	"github.com/issue9/errwrap"
+
+	"github.com/issue9/cnregion/id"
 )
 
 // Region 表示单个区域
@@ -22,6 +24,7 @@ type Region struct {
 
 	FullName string // 全名
 	db       *DB
+	level    id.Level
 }
 
 // IsSupported 当前数据是否支持该年份
@@ -35,8 +38,7 @@ func (reg *Region) IsSupported(year int) bool {
 	return reg.Supported&flag == flag
 }
 
-// AddItem 添加一条子项
-func (reg *Region) AddItem(id, name string, year int) error {
+func (reg *Region) addItem(id, name string, year int) error {
 	index := reg.db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不支持该年份 %d 的数据", year)

@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/issue9/cnregion/db"
-	"github.com/issue9/cnregion/id"
 	"github.com/issue9/cnregion/version"
 )
 
@@ -66,36 +65,13 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 			}
 			id, name := vals[0], vals[1]
 
-			if err := appendDB(d, year, id, name); err != nil {
+			if err := d.AddItem(id, name, year); err != nil {
 				return err
 			}
 		}
 
 		return nil
 	})
-}
-
-func appendDB(d *db.DB, year int, regionID, name string) error {
-	province, city, county, town, village := id.Split(regionID)
-	list := filterZero(province, city, county, town, village)
-	item := d.Find(list...)
-
-	if item == nil {
-		item = d.Find(list[:len(list)-1]...) // 上一级
-		return item.AddItem(list[len(list)-1], name, year)
-	}
-
-	return item.SetSupported(year)
-}
-
-func filterZero(regionID ...string) []string {
-	for index, i := range regionID { // 过滤掉数组中的零值
-		if id.IsZero(i) {
-			regionID = regionID[:index]
-			break
-		}
-	}
-	return regionID
 }
 
 func fileExists(path string) bool {
