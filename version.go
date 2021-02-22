@@ -47,3 +47,47 @@ func LoadFile(path, separator string, version int) (*Version, error) {
 
 	return New(d, version), nil
 }
+
+// Provinces 所有的顶级行政区域
+func (v *Version) Provinces() []Region {
+	root := v.db.Find()
+	return (&dbRegion{r: root}).Items()
+}
+
+// Districts 按行政大区划分
+//
+// NOTE: 大区划分并不统一，按照各个省份的第一个数字进行划分。
+func (v *Version) Districts() []Region {
+	dMap := make(map[byte]*districtRegion, len(districtsMap))
+	provinces := v.Provinces()
+
+	for k, v := range districtsMap {
+		dMap[k] = &districtRegion{
+			id:       string(k),
+			name:     v,
+			fullName: v,
+		}
+
+		for _, p := range provinces {
+			if p.ID()[0] == k {
+				dMap[k].items = append(dMap[k].items, p)
+			}
+		}
+	}
+
+	districts := make([]Region, 0, len(dMap))
+	for _, v := range dMap {
+		districts = append(districts, v)
+	}
+
+	return districts
+}
+
+var districtsMap = map[byte]string{
+	'1': "华北地区",
+	'2': "东北地区",
+	'3': "华东地区",
+	'4': "中南地区",
+	'5': "西南地区",
+	'6': "西北地区",
+}

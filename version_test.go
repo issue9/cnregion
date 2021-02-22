@@ -31,3 +31,33 @@ func TestVersion(t *testing.T) {
 	r = v.Find("330305000000")
 	a.Nil(r)
 }
+
+func TestVersion_Provinces(t *testing.T) {
+	a := assert.New(t)
+
+	v, err := LoadFile("./data/regions.db", ">", 2020)
+	a.NotError(err).NotNil(v)
+	provinces := v.Provinces()
+	a.Equal(31, len(provinces))
+
+	for _, p := range provinces {
+		if p.ID() == "33" {
+			a.Equal(p.Name(), "浙江省")
+		}
+	}
+}
+
+func TestVersion_Districts(t *testing.T) {
+	a := assert.New(t)
+
+	v, err := LoadFile("./data/regions.db", ">", 2020)
+	a.NotError(err).NotNil(v)
+	districts := v.Districts()
+	a.Equal(6, len(districts))
+
+	for _, d := range districts {
+		if d.ID() == "1" {
+			a.Equal(d.Name(), "华北地区").Equal(5, len(d.Items()))
+		}
+	}
+}

@@ -8,12 +8,24 @@ import (
 )
 
 // Region 表示某个区域的相关信息
-type Region struct {
+type Region interface {
+	ID() string
+	Name() string
+	FullName() string
+	Items() []Region
+}
+
+type dbRegion struct {
 	r *db.Region
 }
 
+type districtRegion struct {
+	id, name, fullName string
+	items              []Region
+}
+
 // Find 查找指定 ID 所表示的 Region
-func (v *Version) Find(regionID string) *Region {
+func (v *Version) Find(regionID string) Region {
 	province, city, county, town, village := id.Split(regionID)
 
 	// 过滤掉零值
@@ -30,29 +42,30 @@ func (v *Version) Find(regionID string) *Region {
 		return nil
 	}
 
-	return &Region{r: dr}
+	return &dbRegion{r: dr}
 }
 
-// ID 区域 ID
-func (r *Region) ID() string {
+func (r *dbRegion) ID() string {
 	return r.r.ID
 }
 
-// Name 区域名称
-func (r *Region) Name() string {
+func (r *dbRegion) Name() string {
 	return r.r.Name
 }
 
-// FullName 全名
-func (r *Region) FullName() string {
+func (r *dbRegion) FullName() string {
 	return r.r.FullName
 }
 
-// Items 子项
-func (r *Region) Items() []*Region {
-	items := make([]*Region, 0, len(r.r.Items))
+func (r *dbRegion) Items() []Region {
+	items := make([]Region, 0, len(r.r.Items))
 	for _, item := range r.r.Items {
-		items = append(items, &Region{r: item})
+		items = append(items, &dbRegion{r: item})
 	}
 	return items
 }
+
+func (r *districtRegion) ID() string       { return r.id }
+func (r *districtRegion) Name() string     { return r.name }
+func (r *districtRegion) FullName() string { return r.fullName }
+func (r *districtRegion) Items() []Region  { return r.items }
