@@ -18,6 +18,8 @@ const (
 	County
 	City
 	Province
+
+	AllLevel = Village + Town + County + City + Province
 )
 
 var lengths = map[Level]int{

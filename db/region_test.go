@@ -47,9 +47,9 @@ func TestRegion_SetSupported(t *testing.T) {
 	obj.region = &Region{Items: []*Region{{db: obj}}, db: obj}
 
 	a.NotError(obj.region.addItem("33", "浙江", id.Province, 2020))
-	a.NotError(obj.region.Items[0].SetSupported(2020))
-	a.NotError(obj.region.Items[0].SetSupported(2019))
-	a.ErrorString(obj.region.Items[0].SetSupported(2001), "不存在该年份")
+	a.NotError(obj.region.Items[0].setSupported(2020))
+	a.NotError(obj.region.Items[0].setSupported(2019))
+	a.ErrorString(obj.region.Items[0].setSupported(2001), "不存在该年份")
 }
 
 func TestFindEnd(t *testing.T) {

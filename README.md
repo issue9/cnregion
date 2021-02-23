@@ -6,8 +6,6 @@
 
 历年统计用区划代码和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
 
-采用 GB/T 2260 和 GB/T 2260 编码规则。
-
 ## 安装
 
 ```shell

@@ -145,7 +145,7 @@ func (db *DB) AddItem(regionID, name string, year int) error {
 		return item.addItem(list[len(list)-1], name, level, year)
 	}
 
-	return item.SetSupported(year)
+	return item.setSupported(year)
 }
 
 func (db *DB) marshal() ([]byte, error) {

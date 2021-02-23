@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/issue9/assert"
+	"github.com/issue9/cnregion/id"
 )
 
 var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
@@ -24,24 +25,28 @@ var obj = &DB{
 				Name:      "浙江",
 				Supported: 1,
 				FullName:  "浙江",
+				level:     id.Province,
 			},
 			{
 				ID:        "34",
 				Name:      "安徽",
 				FullName:  "安徽",
 				Supported: 1,
+				level:     id.Province,
 				Items: []*Region{
 					{
 						ID:        "01",
 						Name:      "合肥",
 						Supported: 3,
 						FullName:  "安徽-合肥",
+						level:     id.City,
 					},
 					{
 						ID:        "02",
 						Name:      "芜湖",
 						Supported: 1,
 						FullName:  "安徽-芜湖",
+						level:     id.City,
 					},
 				},
 			},

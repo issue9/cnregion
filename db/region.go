@@ -60,8 +60,7 @@ func (reg *Region) addItem(id, name string, level id.Level, year int) error {
 	return nil
 }
 
-// SetSupported 设置当前数据支持指定的年份
-func (reg *Region) SetSupported(year int) error {
+func (reg *Region) setSupported(year int) error {
 	index := reg.db.VersionIndex(year)
 	if index == -1 {
 		return fmt.Errorf("不存在该年份 %d 的数据", year)

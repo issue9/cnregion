@@ -50,6 +50,19 @@ func LoadFile(path, separator string, version int) (*Version, error) {
 	return New(d, version), nil
 }
 
+// SearchOptions 为搜索功能提供的参数
+type SearchOptions = db.Options
+
+// Search 按名称搜索
+func (v *Version) Search(text string, opt *SearchOptions) []Region {
+	list := v.db.Search(text, opt)
+	rs := make([]*dbRegion, 0, len(list))
+	for _, item := range list {
+		rs = append(rs, &dbRegion{r: item})
+	}
+	return rs
+}
+
 // Provinces 所有的顶级行政区域
 func (v *Version) Provinces() []Region {
 	if len(v.provinces) == 0 {
