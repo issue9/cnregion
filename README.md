@@ -3,6 +3,8 @@
 [![Test](https://github.com/issue9/cnregion/workflows/Test/badge.svg)](https://github.com/issue9/cnregion/actions?query=workflow%3ATest)
 [![Go version](https://img.shields.io/github/go-mod/go-version/issue9/cnregion)](https://golang.org)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/issue9/cnregion)](https://pkg.go.dev/github.com/issue9/cnregion)
+[![codecov](https://codecov.io/gh/issue9/cnregion/branch/master/graph/badge.svg)](https://codecov.io/gh/issue9/cnregion)
+![License](https://img.shields.io/github/license/issue9/cnregion)
 
 历年统计用区划代码和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
 
