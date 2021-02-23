@@ -17,7 +17,7 @@ import (
 type Region struct {
 	ID        string
 	Name      string
-	Supported int // 支持的版本号
+	supported int // 支持的版本号
 	Items     []*Region
 
 	// 以下数据不会写入数据文件中
@@ -35,7 +35,7 @@ func (reg *Region) IsSupported(year int) bool {
 	}
 
 	flag := 1 << index
-	return reg.Supported&flag == flag
+	return reg.supported&flag == flag
 }
 
 func (reg *Region) addItem(id, name string, level id.Level, year int) error {
@@ -54,7 +54,7 @@ func (reg *Region) addItem(id, name string, level id.Level, year int) error {
 		db:        reg.db,
 		ID:        id,
 		Name:      name,
-		Supported: 1 << index,
+		supported: 1 << index,
 		level:     level,
 	})
 	return nil
@@ -67,8 +67,8 @@ func (reg *Region) setSupported(year int) error {
 	}
 
 	flag := 1 << index
-	if reg.Supported&flag == 0 {
-		reg.Supported += flag
+	if reg.supported&flag == 0 {
+		reg.supported += flag
 	}
 	return nil
 }
@@ -88,7 +88,7 @@ func (reg *Region) findItem(regionID ...string) *Region {
 }
 
 func (reg *Region) marshal(buf *errwrap.Buffer) error {
-	buf.Printf("%s:%s:%d:%d{", reg.ID, reg.Name, reg.Supported, len(reg.Items))
+	buf.Printf("%s:%s:%d:%d{", reg.ID, reg.Name, reg.supported, len(reg.Items))
 	for _, item := range reg.Items {
 		err := item.marshal(buf)
 		if err != nil {
@@ -114,7 +114,7 @@ func (reg *Region) unmarshal(data []byte, parentName string) error {
 	if err != nil {
 		return err
 	}
-	reg.Supported = supperted
+	reg.supported = supperted
 
 	data, val = indexBytes(data, '{')
 	size, err := strconv.Atoi(val)

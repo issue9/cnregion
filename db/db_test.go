@@ -18,12 +18,12 @@ var obj = &DB{
 	fullNameSeparator: "-",
 	region: &Region{
 		Name:      "",
-		Supported: 1,
+		supported: 1,
 		Items: []*Region{
 			{
 				ID:        "33",
 				Name:      "浙江",
-				Supported: 1,
+				supported: 1,
 				FullName:  "浙江",
 				level:     id.Province,
 			},
@@ -31,20 +31,20 @@ var obj = &DB{
 				ID:        "34",
 				Name:      "安徽",
 				FullName:  "安徽",
-				Supported: 1,
+				supported: 1,
 				level:     id.Province,
 				Items: []*Region{
 					{
 						ID:        "01",
 						Name:      "合肥",
-						Supported: 3,
+						supported: 3,
 						FullName:  "安徽-合肥",
 						level:     id.City,
 					},
 					{
 						ID:        "02",
 						Name:      "芜湖",
-						Supported: 1,
+						supported: 1,
 						FullName:  "安徽-芜湖",
 						level:     id.City,
 					},

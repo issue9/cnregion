@@ -14,7 +14,7 @@ func TestRegion_IsSupported(t *testing.T) {
 
 	obj := &DB{versions: []int{2020, 2019, 2018}}
 	obj.region = &Region{Items: []*Region{
-		{Supported: 3, Name: "test", db: obj},
+		{supported: 3, Name: "test", db: obj},
 	}, db: obj}
 
 	a.True(obj.region.Items[0].IsSupported(2020))
