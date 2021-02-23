@@ -59,7 +59,7 @@ type SearchOptions = db.Options
 // 直接搜温州就可以。也不要提供类似于居委会这种无实际意义的地名；
 func (v *Version) Search(text string, opt *SearchOptions) []Region {
 	list := v.db.Search(text, opt)
-	rs := make([]*dbRegion, 0, len(list))
+	rs := make([]Region, 0, len(list))
 	for _, item := range list {
 		rs = append(rs, &dbRegion{r: item})
 	}
