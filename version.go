@@ -53,7 +53,10 @@ func LoadFile(path, separator string, version int) (*Version, error) {
 // SearchOptions 为搜索功能提供的参数
 type SearchOptions = db.Options
 
-// Search 按名称搜索
+// Search 简单的搜索功能
+//
+// text 表示你需要搜索的地名，不能是多个名称的组合，比如浙江温州，
+// 直接搜温州就可以。也不要提供类似于居委会这种无实际意义的地名；
 func (v *Version) Search(text string, opt *SearchOptions) []Region {
 	list := v.db.Search(text, opt)
 	rs := make([]*dbRegion, 0, len(list))

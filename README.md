@@ -6,6 +6,16 @@
 
 历年统计用区划代码和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
 
+```go
+v, err := cnregion.LoadFile("./data/regions.db", "-", 2020)
+
+p := v.Provinces() // 返回所有省列表
+
+d := v.Districts() // 按以前的行政大区进行划分
+
+v.Search("温州", nil) // 按索地名中带温州的区域列表
+```
+
 ## 安装
 
 ```shell
