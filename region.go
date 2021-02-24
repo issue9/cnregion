@@ -18,6 +18,7 @@ type Region interface {
 
 type dbRegion struct {
 	r *db.Region
+	v *Version
 }
 
 type districtRegion struct {
@@ -32,7 +33,7 @@ func (v *Version) Find(regionID string) Region {
 		return nil
 	}
 
-	return &dbRegion{r: dr}
+	return &dbRegion{r: dr, v: v}
 }
 
 func (r *dbRegion) ID() string       { return r.r.ID }
@@ -43,7 +44,9 @@ func (r *dbRegion) FullID() string   { return r.r.FullID }
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))
 	for _, item := range r.r.Items {
-		items = append(items, &dbRegion{r: item})
+		if item.IsSupported(r.v.version) {
+			items = append(items, &dbRegion{r: item, v: r.v})
+		}
 	}
 	return items
 }

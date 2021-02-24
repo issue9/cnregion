@@ -12,8 +12,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/issue9/cnregion/id"
 	"github.com/issue9/errwrap"
+
+	"github.com/issue9/cnregion/id"
 )
 
 // Version 数据文件的版本号

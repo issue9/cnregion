@@ -8,7 +8,7 @@ import (
 	"github.com/issue9/assert"
 )
 
-func TestVersion(t *testing.T) {
+func TestVersion_Find(t *testing.T) {
 	a := assert.New(t)
 
 	v, err := LoadFile("./data/regions.db", ">", 2020)
@@ -32,6 +32,39 @@ func TestVersion(t *testing.T) {
 		Equal(r.FullName(), "浙江省>温州市>洞头县")
 	r = v.Find("330305000000")
 	a.Nil(r)
+}
+
+func TestRegion_Items(t *testing.T) {
+	a := assert.New(t)
+
+	var x05, x22 bool
+	v, err := LoadFile("./data/regions.db", ">", 2020)
+	a.NotError(err).NotNil(v)
+	r := v.Find("330300000000")
+	for _, item := range r.Items() {
+		if item.ID() == "05" {
+			x05 = true
+		}
+		if item.ID() == "22" {
+			x22 = true
+		}
+	}
+	a.True(x05).False(x22)
+
+	x05 = false
+	x22 = false
+	v, err = LoadFile("./data/regions.db", ">", 2009)
+	a.NotError(err).NotNil(v)
+	r = v.Find("330300000000")
+	for _, item := range r.Items() {
+		if item.ID() == "05" {
+			x05 = true
+		}
+		if item.ID() == "22" {
+			x22 = true
+		}
+	}
+	a.False(x05).True(x22)
 }
 
 func TestVersion_Provinces(t *testing.T) {
