@@ -19,7 +19,7 @@ type Version struct {
 // New 返回 Version 实例
 //
 // version 表示需要的数据版本，即四位数的年份。
-func New(db *db.DB, version int) *Version {
+func New(db *db.DB, version int) (*Version, error) {
 	if -1 == db.VersionIndex(version) {
 		return nil, fmt.Errorf("版本号 %d 并不存在于 db", version)
 	}
