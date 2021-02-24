@@ -53,6 +53,8 @@ func Split(id string) (province, city, county, town, village string) {
 }
 
 // SplitFilter 将 id 按区域进行划分且过滤掉零值的区域
+//
+//  330312123000 => 33 03 12 123
 func SplitFilter(id string) []string {
 	province, city, county, town, village := Split(id)
 	return filterZero(province, city, county, town, village)
@@ -66,6 +68,22 @@ func filterZero(id ...string) []string {
 		}
 	}
 	return id
+}
+
+// Parent 获取 id 的上一级行政区域的 ID
+//
+//  330312123456 => 330312123
+func Parent(id string) string {
+	list := SplitFilter(id)
+	return strings.Join(list[:len(list)-1], "")
+}
+
+// Prefix 获取 ID 的非零前缀
+//
+//  330312123456 => 330312123456
+//  330312123000 => 330312123
+func Prefix(id string) string {
+	return strings.Join(SplitFilter(id), "")
 }
 
 // Fill 为 id 填充后缀的 0

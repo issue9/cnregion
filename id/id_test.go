@@ -23,6 +23,36 @@ func TestSplit(t *testing.T) {
 	})
 }
 
+func TestSplitFilter(t *testing.T) {
+	a := assert.New(t)
+
+	list := SplitFilter("330203103000")
+	a.Equal(4, len(list)).
+		Equal(list[0], "33").
+		Equal(list[1], "02").
+		Equal(list[2], "03").
+		Equal(list[3], "103")
+
+	// 碰到第一个零值，即结果后续的判断
+	list = SplitFilter("330003103000")
+	a.Equal(1, len(list)).Equal(list[0], "33")
+}
+
+func TestParent(t *testing.T) {
+	a := assert.New(t)
+
+	a.Equal(Parent("330300000000"), "33")
+	a.Equal(Parent("330302111000"), "330302")
+}
+
+func TestPrefix(t *testing.T) {
+	a := assert.New(t)
+
+	a.Equal(Prefix("330301001001"), "330301001001")
+	a.Equal(Prefix("330300000000"), "3303")
+	a.Equal(Prefix("330302000000"), "330302")
+}
+
 func TestFill(t *testing.T) {
 	a := assert.New(t)
 
