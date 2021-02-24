@@ -21,13 +21,13 @@ type Version struct {
 // version 表示需要的数据版本，即四位数的年份。
 func New(db *db.DB, version int) *Version {
 	if -1 == db.VersionIndex(version) {
-		panic(fmt.Sprintf("版本号 %d 并不存在于 db", version))
+		return nil, fmt.Errorf("版本号 %d 并不存在于 db", version)
 	}
 
 	return &Version{
 		version: version,
 		db:      db,
-	}
+	}, nil
 }
 
 // Load 加载 data 数据初始化 Version 实例
@@ -37,7 +37,7 @@ func Load(data []byte, separator string, version int) (*Version, error) {
 		return nil, err
 	}
 
-	return New(d, version), nil
+	return New(d, version)
 }
 
 // LoadFile 从 path 加载数据并初始化 Version 实例
@@ -47,7 +47,7 @@ func LoadFile(path, separator string, version int) (*Version, error) {
 		return nil, err
 	}
 
-	return New(d, version), nil
+	return New(d, version)
 }
 
 // SearchOptions 为搜索功能提供的参数
