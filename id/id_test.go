@@ -57,6 +57,7 @@ func TestFill(t *testing.T) {
 	a := assert.New(t)
 
 	a.Equal(Fill("34", Village), "340000000000")
+	a.Equal(Fill("3", Village), "300000000000")
 	a.Equal(Fill("34", Province), "34")
 	a.Equal(Fill("34", City), "3400")
 	a.Equal(Fill("341234666777", Village), "341234666777")

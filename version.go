@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/issue9/cnregion/db"
+	"github.com/issue9/cnregion/id"
 )
 
 // Version 用于描述与特定版本相关的区域数据
@@ -89,6 +90,7 @@ func (v *Version) Districts() []Region {
 				id:       string(k),
 				name:     v,
 				fullName: v,
+				fullID:   id.Fill(string(k), id.Village),
 			}
 
 			for _, p := range provinces {

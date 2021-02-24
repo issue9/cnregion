@@ -23,6 +23,7 @@ type Region struct {
 	// 以下数据不会写入数据文件中
 
 	FullName string // 全名
+	FullID   string
 	db       *DB
 	level    id.Level
 }
@@ -51,10 +52,10 @@ func (reg *Region) addItem(id, name string, level id.Level, year int) error {
 	}
 
 	reg.Items = append(reg.Items, &Region{
-		db:        reg.db,
 		ID:        id,
 		Name:      name,
 		supported: 1 << index,
+		db:        reg.db,
 		level:     level,
 	})
 	return nil
@@ -100,7 +101,7 @@ func (reg *Region) marshal(buf *errwrap.Buffer) error {
 	return nil
 }
 
-func (reg *Region) unmarshal(data []byte, parentName string) error {
+func (reg *Region) unmarshal(data []byte, parentName, parentID string) error {
 	data, reg.ID = indexBytes(data, ':')
 
 	data, reg.Name = indexBytes(data, ':')
@@ -108,6 +109,8 @@ func (reg *Region) unmarshal(data []byte, parentName string) error {
 	if parentName != "" {
 		reg.FullName = parentName + reg.db.fullNameSeparator + reg.Name
 	}
+	parentID += reg.ID
+	reg.FullID = id.Fill(parentID, id.Village)
 
 	data, val := indexBytes(data, ':')
 	supperted, err := strconv.Atoi(val)
@@ -130,7 +133,7 @@ func (reg *Region) unmarshal(data []byte, parentName string) error {
 			}
 
 			item := &Region{db: reg.db}
-			if err := item.unmarshal(data[:index], reg.FullName); err != nil {
+			if err := item.unmarshal(data[:index], reg.FullName, parentID); err != nil {
 				return err
 			}
 			reg.Items = append(reg.Items, item)

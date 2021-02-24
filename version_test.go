@@ -16,6 +16,7 @@ func TestVersion(t *testing.T) {
 	r := v.Find("330305000000")
 	a.NotNil(r).
 		Equal(r.ID(), "05").
+		Equal(r.FullID(), "330305000000").
 		Equal(r.Name(), "洞头区").
 		Equal(r.FullName(), "浙江省>温州市>洞头区")
 	r = v.Find("330322000000") // 洞头县，已改为洞头区
@@ -26,6 +27,7 @@ func TestVersion(t *testing.T) {
 	r = v.Find("330322000000")
 	a.NotNil(r).
 		Equal(r.ID(), "22").
+		Equal(r.FullID(), "330322000000").
 		Equal(r.Name(), "洞头县").
 		Equal(r.FullName(), "浙江省>温州市>洞头县")
 	r = v.Find("330305000000")

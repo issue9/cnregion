@@ -12,6 +12,7 @@ type Region interface {
 	ID() string
 	Name() string
 	FullName() string
+	FullID() string
 	Items() []Region
 }
 
@@ -20,8 +21,8 @@ type dbRegion struct {
 }
 
 type districtRegion struct {
-	id, name, fullName string
-	items              []Region
+	id, name, fullName, fullID string
+	items                      []Region
 }
 
 // Find 查找指定 ID 所表示的 Region
@@ -37,6 +38,7 @@ func (v *Version) Find(regionID string) Region {
 func (r *dbRegion) ID() string       { return r.r.ID }
 func (r *dbRegion) Name() string     { return r.r.Name }
 func (r *dbRegion) FullName() string { return r.r.FullName }
+func (r *dbRegion) FullID() string   { return r.r.FullID }
 
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))
@@ -49,4 +51,5 @@ func (r *dbRegion) Items() []Region {
 func (r *districtRegion) ID() string       { return r.id }
 func (r *districtRegion) Name() string     { return r.name }
 func (r *districtRegion) FullName() string { return r.fullName }
+func (r *districtRegion) FullID() string   { return r.fullID }
 func (r *districtRegion) Items() []Region  { return r.items }

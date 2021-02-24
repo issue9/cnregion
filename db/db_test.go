@@ -25,12 +25,14 @@ var obj = &DB{
 				Name:      "浙江",
 				supported: 1,
 				FullName:  "浙江",
+				FullID:    "330000000000",
 				level:     id.Province,
 			},
 			{
 				ID:        "34",
 				Name:      "安徽",
 				FullName:  "安徽",
+				FullID:    "340000000000",
 				supported: 1,
 				level:     id.Province,
 				Items: []*Region{
@@ -39,6 +41,7 @@ var obj = &DB{
 						Name:      "合肥",
 						supported: 3,
 						FullName:  "安徽-合肥",
+						FullID:    "340100000000",
 						level:     id.City,
 					},
 					{
@@ -46,6 +49,7 @@ var obj = &DB{
 						Name:      "芜湖",
 						supported: 1,
 						FullName:  "安徽-芜湖",
+						FullID:    "340200000000",
 						level:     id.City,
 					},
 				},
@@ -63,7 +67,9 @@ func TestMarshal(t *testing.T) {
 		Equal(o1.versions, obj.versions).
 		Equal(len(o1.region.Items), len(obj.region.Items)).
 		Equal(o1.region.Items[0].ID, obj.region.Items[0].ID).
-		Equal(o1.region.Items[1].Items[0].ID, obj.region.Items[1].Items[0].ID)
+		Equal(o1.region.Items[0].FullID, obj.region.Items[0].FullID).
+		Equal(o1.region.Items[1].Items[0].ID, obj.region.Items[1].Items[0].ID).
+		Equal(o1.region.Items[1].Items[0].FullID, obj.region.Items[1].Items[0].FullID)
 
 	d1, err := obj.marshal()
 	a.NotError(err).NotNil(d1)
