@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/issue9/cnregion/branch/master/graph/badge.svg)](https://codecov.io/gh/issue9/cnregion)
 ![License](https://img.shields.io/github/license/issue9/cnregion)
 
-历年统计用区划代码和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
+历年统计用区域和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
 
 ```go
 v, err := cnregion.LoadFile("./data/regions.db", "-", 2020)
@@ -22,6 +22,9 @@ provinces := d[0].Items() // 该大区下的所有省份
 
 list := v.Search("温州", nil) // 按索地名中带温州的区域列表
 ```
+
+对采集的数据进行了一定的加工，以减少文件的体积，文件保存在 `./data/regions.db` 中。
+使用时使用将内容读取到 []byte 中即可使用，或是直接使用 `LoadFile` 函数。
 
 ## 安装
 

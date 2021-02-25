@@ -40,6 +40,8 @@ func New(db *db.DB, versions ...int) (*Version, error) {
 }
 
 // Load 加载 data 数据初始化 Version 实例
+//
+// separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
 func Load(data []byte, separator string, version ...int) (*Version, error) {
 	d, err := db.Load(data, separator, true)
 	if err != nil {
@@ -50,6 +52,8 @@ func Load(data []byte, separator string, version ...int) (*Version, error) {
 }
 
 // LoadFile 从 path 加载数据并初始化 Version 实例
+//
+// separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
 func LoadFile(path, separator string, version ...int) (*Version, error) {
 	d, err := db.LoadFile(path, separator, true)
 	if err != nil {
