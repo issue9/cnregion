@@ -29,7 +29,7 @@ type districtRegion struct {
 // Find 查找指定 ID 所表示的 Region
 func (v *Version) Find(regionID string) Region {
 	dr := v.db.Find(id.SplitFilter(regionID)...)
-	if dr == nil || !dr.IsSupported(v.version) {
+	if dr == nil || !v.isSupported(dr) {
 		return nil
 	}
 
@@ -44,7 +44,7 @@ func (r *dbRegion) FullID() string   { return r.r.FullID }
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))
 	for _, item := range r.r.Items {
-		if item.IsSupported(r.v.version) {
+		if r.v.isSupported(item) {
 			items = append(items, &dbRegion{r: item, v: r.v})
 		}
 	}

@@ -11,6 +11,7 @@ import (
 func TestVersion_Find(t *testing.T) {
 	a := assert.New(t)
 
+	// 2020
 	v, err := LoadFile("./data/regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)
 	r := v.Find("330305000000")
@@ -22,6 +23,7 @@ func TestVersion_Find(t *testing.T) {
 	r = v.Find("330322000000") // 洞头县，已改为洞头区
 	a.Nil(r)
 
+	// 2009
 	v, err = LoadFile("./data/regions.db", ">", 2009)
 	a.NotError(err).NotNil(v)
 	r = v.Find("330322000000")
@@ -32,11 +34,20 @@ func TestVersion_Find(t *testing.T) {
 		Equal(r.FullName(), "浙江省>温州市>洞头县")
 	r = v.Find("330305000000")
 	a.Nil(r)
+
+	// 所有年份的数据
+	v, err = LoadFile("./data/regions.db", ">")
+	a.NotError(err).NotNil(v)
+	r = v.Find("330322000000")
+	a.NotNil(r).Equal(r.ID(), "22")
+	r = v.Find("330305000000")
+	a.NotNil(r).Equal(r.ID(), "05")
 }
 
 func TestRegion_Items(t *testing.T) {
 	a := assert.New(t)
 
+	// 2020
 	var x05, x22 bool
 	v, err := LoadFile("./data/regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)
@@ -51,6 +62,7 @@ func TestRegion_Items(t *testing.T) {
 	}
 	a.True(x05).False(x22)
 
+	// 2009
 	x05 = false
 	x22 = false
 	v, err = LoadFile("./data/regions.db", ">", 2009)
@@ -65,6 +77,22 @@ func TestRegion_Items(t *testing.T) {
 		}
 	}
 	a.False(x05).True(x22)
+
+	//2020 + 2009
+	x05 = false
+	x22 = false
+	v, err = LoadFile("./data/regions.db", ">", 2009, 2020)
+	a.NotError(err).NotNil(v)
+	r = v.Find("330300000000")
+	for _, item := range r.Items() {
+		if item.ID() == "05" {
+			x05 = true
+		}
+		if item.ID() == "22" {
+			x22 = true
+		}
+	}
+	a.True(x05).True(x22)
 }
 
 func TestVersion_Provinces(t *testing.T) {
