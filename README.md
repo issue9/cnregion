@@ -7,6 +7,7 @@
 ![License](https://img.shields.io/github/license/issue9/cnregion)
 
 历年统计用区域和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
+符合国家标准GB/T 2260与GB/T 10114。
 
 ```go
 v, err := cnregion.LoadFile("./data/regions.db", "-", 2020)
@@ -24,7 +25,7 @@ list := v.Search("温州", nil) // 按索地名中带温州的区域列表
 ```
 
 对采集的数据进行了一定的加工，以减少文件的体积，文件保存在 `./data/regions.db` 中。
-使用时使用将内容读取到 []byte 中即可使用，或是直接使用 `LoadFile` 函数。
+你可以直接使用 go1.16 中的 `//go:embed` 嵌入到代码中，也可以采用 `cnregion.LoadFile` 从外部加载。
 
 ## 安装
 

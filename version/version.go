@@ -26,8 +26,13 @@ var Latest = time.Now().Year() - 1
 
 // All 返回支持的版本号列表
 func All() []int {
-	years := make([]int, 0, Latest-Start)
-	for year := Latest; year >= Start; year-- {
+	return BeginWith(Start)
+}
+
+// BeginWith 从 begin 开始直接最新年份
+func BeginWith(begin int) []int {
+	years := make([]int, 0, Latest-begin)
+	for year := Latest; year >= begin; year-- {
 		years = append(years, year)
 	}
 
