@@ -7,32 +7,38 @@
 package version
 
 import (
-	"errors"
+	"fmt"
 	"time"
 )
 
 // ErrInvalidYear 无效的年份版本
 //
 // 年份只能介于 [2009, 当前) 的区间之间。
-var ErrInvalidYear = errors.New("无效的年份")
+var ErrInvalidYear = fmt.Errorf("无效的版本号，必须是介于 [%d,%d] 之间的整数", start, latest)
 
-// Start 起始版本号
-//
-// 即提供的数据的起始年份。
-const Start = 2009
+// start 起始版本号，即提供的数据的起始年份。
+const start = 2009
 
-// Latest 最新的版本号
-var Latest = time.Now().Year() - 1
+var latest = time.Now().Year() - 1
 
 // All 返回支持的版本号列表
 func All() []int {
-	return BeginWith(Start)
+	return BeginWith(start)
+}
+
+// IsValid 验证年份是否为一个有效的版本号
+func IsValid(year int) bool {
+	return year >= start && year <= latest
 }
 
 // BeginWith 从 begin 开始直接最新年份
 func BeginWith(begin int) []int {
-	years := make([]int, 0, Latest-begin)
-	for year := Latest; year >= begin; year-- {
+	if !IsValid(begin) {
+		panic(ErrInvalidYear)
+	}
+
+	years := make([]int, 0, latest-begin+1)
+	for year := latest; year >= begin; year-- {
 		years = append(years, year)
 	}
 

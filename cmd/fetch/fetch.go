@@ -38,7 +38,7 @@ func fetch(dir string, years ...int) error {
 }
 
 func fetchYear(dir string, year int) error {
-	if year < version.Start || year > version.Latest {
+	if !version.IsValid(year) {
 		return version.ErrInvalidYear
 	}
 

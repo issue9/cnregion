@@ -13,6 +13,17 @@ func TestAll(t *testing.T) {
 
 	all := All()
 	// 保证从大到小
-	a.Equal(all[0], Latest).
-		Equal(all[len(all)-1], Start)
+	a.Equal(all[0], latest).
+		Equal(all[len(all)-1], start)
+}
+
+func TestBeginWith(t *testing.T) {
+	a := assert.New(t)
+
+	list := BeginWith(latest)
+	a.Equal(1, len(list)).Equal(list[0], latest)
+
+	a.Panic(func() {
+		BeginWith(start - 1)
+	})
 }
