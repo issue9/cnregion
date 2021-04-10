@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"errors"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -43,6 +44,15 @@ func New() *DB {
 	db.region = &Region{db: db}
 
 	return db
+}
+
+// LoadFS 从数据文件加载数据
+func LoadFS(fsys fs.FS, file, separator string, compress bool) (*DB, error) {
+	data, err := fs.ReadFile(fsys, file)
+	if err != nil {
+		return nil, err
+	}
+	return Load(data, separator, compress)
 }
 
 // Load 返回 DB 对象

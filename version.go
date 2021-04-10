@@ -3,12 +3,17 @@
 package cnregion
 
 import (
+	_ "embed" // dbData
 	"fmt"
+	"io/fs"
 
 	"github.com/issue9/cnregion/db"
 	"github.com/issue9/cnregion/id"
 	"github.com/issue9/cnregion/version"
 )
+
+//go:embed data/regions.db
+var dbData []byte
 
 // Version 用于描述与特定版本相关的区域数据
 type Version struct {
@@ -37,6 +42,26 @@ func New(db *db.DB, versions ...int) (*Version, error) {
 		versions: versions,
 		db:       db,
 	}, nil
+}
+
+// Embed 将 data/regions.db 的内容嵌入到程序中
+//
+// 这样可以让程序不依赖外部文件，但同时也会增加编译后程序的大小。
+// data/regions.db 目前大小为 7M 左右。
+func Embed(separator string, version ...int) (*Version, error) {
+	return Load(dbData, separator, version...)
+}
+
+// LoadFS 从 path 加载数据并初始化 Version 实例
+//
+// separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
+func LoadFS(fsys fs.FS, path, separator string, version ...int) (*Version, error) {
+	d, err := db.LoadFS(fsys, path, separator, true)
+	if err != nil {
+		return nil, err
+	}
+
+	return New(d, version...)
 }
 
 // Load 加载 data 数据初始化 Version 实例
