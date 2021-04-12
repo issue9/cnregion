@@ -3,12 +3,9 @@
 package main
 
 import (
-	"bytes"
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/issue9/errwrap"
 
 	"github.com/issue9/cnregion/version"
 )
@@ -42,8 +39,6 @@ func fetchYear(dir string, year int) error {
 		return version.ErrInvalidYear
 	}
 
-	buf := &errwrap.Buffer{Buffer: bytes.Buffer{}}
-
 	y := strconv.Itoa(year)
 
 	dir = filepath.Join(dir, y)
@@ -51,5 +46,5 @@ func fetchYear(dir string, year int) error {
 		return err
 	}
 
-	return collect(dir, buf, baseURL+y)
+	return collect(dir, baseURL+y)
 }

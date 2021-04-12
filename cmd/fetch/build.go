@@ -59,11 +59,11 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 		s.Split(bufio.ScanLines)
 		for s.Scan() {
 			txt := s.Text()
-			vals := strings.Split(txt, "\t")
-			if len(vals) != 2 {
+			values := strings.Split(txt, "\t")
+			if len(values) != 2 {
 				return fmt.Errorf("无效的格式，位于 %s:%s", path, txt)
 			}
-			id, name := vals[0], vals[1]
+			id, name := values[0], values[1]
 
 			if err := d.AddItem(id, name, year); err != nil {
 				return err
@@ -72,9 +72,4 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 
 		return nil
 	})
-}
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil || !os.IsNotExist(err)
 }

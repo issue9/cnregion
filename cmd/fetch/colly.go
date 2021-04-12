@@ -58,7 +58,7 @@ func (fs files) dump(dir string) error {
 	return nil
 }
 
-func collect(dir string, buf *errwrap.Buffer, base string) error {
+func collect(dir string, base string) error {
 	expr := base + "/[0-9]*.html"
 	c := colly.NewCollector(colly.URLFilters(
 		regexp.MustCompile(base),

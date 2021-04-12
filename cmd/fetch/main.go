@@ -47,7 +47,7 @@ func main() {
 	}
 }
 
-func doFetch(w io.Writer) error {
+func doFetch(io.Writer) error {
 	years, err := getYears(fetchYears)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func doFetch(w io.Writer) error {
 	return fetch(fetchDataDir, years...)
 }
 
-func doBuild(w io.Writer) error {
+func doBuild(io.Writer) error {
 	years, err := getYears(buildYears)
 	if err != nil {
 		return err
