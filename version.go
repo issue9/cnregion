@@ -55,8 +55,8 @@ func Embed(separator string, version ...int) (*Version, error) {
 // LoadFS 从 path 加载数据并初始化 Version 实例
 //
 // separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
-func LoadFS(fsys fs.FS, path, separator string, version ...int) (*Version, error) {
-	d, err := db.LoadFS(fsys, path, separator, true)
+func LoadFS(f fs.FS, path, separator string, version ...int) (*Version, error) {
+	d, err := db.LoadFS(f, path, separator, true)
 	if err != nil {
 		return nil, err
 	}

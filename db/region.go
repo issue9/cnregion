@@ -113,11 +113,11 @@ func (reg *Region) unmarshal(data []byte, parentName, parentID string) error {
 	reg.FullID = id.Fill(parentID, id.Village)
 
 	data, val := indexBytes(data, ':')
-	supperted, err := strconv.Atoi(val)
+	supported, err := strconv.Atoi(val)
 	if err != nil {
 		return err
 	}
-	reg.supported = supperted
+	reg.supported = supported
 
 	data, val = indexBytes(data, '{')
 	size, err := strconv.Atoi(val)

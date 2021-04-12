@@ -47,8 +47,8 @@ func New() *DB {
 }
 
 // LoadFS 从数据文件加载数据
-func LoadFS(fsys fs.FS, file, separator string, compress bool) (*DB, error) {
-	data, err := fs.ReadFile(fsys, file)
+func LoadFS(f fs.FS, file, separator string, compress bool) (*DB, error) {
+	data, err := fs.ReadFile(f, file)
 	if err != nil {
 		return nil, err
 	}
@@ -160,16 +160,16 @@ func (db *DB) AddItem(regionID, name string, year int) error {
 }
 
 func (db *DB) marshal() ([]byte, error) {
-	vers := make([]string, 0, len(db.versions))
+	versions := make([]string, 0, len(db.versions))
 	for _, v := range db.versions {
-		vers = append(vers, strconv.Itoa(v))
+		versions = append(versions, strconv.Itoa(v))
 	}
 
 	buf := errwrap.Buffer{Buffer: bytes.Buffer{}}
 	buf.WString(strconv.Itoa(Version)).WByte(':')
 
 	buf.WByte('[')
-	buf.WriteString(strings.Join(vers, ","))
+	buf.WString(strings.Join(versions, ","))
 	buf.WByte(']').WByte(':')
 
 	err := db.region.marshal(&buf)
