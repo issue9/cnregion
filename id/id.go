@@ -55,6 +55,7 @@ func Split(id string) (province, city, county, town, village string) {
 // SplitFilter 将 id 按区域进行划分且过滤掉零值的区域
 //
 //  330312123000 => 33 03 12 123
+// 如果传递的是零值，则返回空数组。
 func SplitFilter(id string) []string {
 	province, city, county, town, village := Split(id)
 	return filterZero(province, city, county, town, village)

@@ -36,6 +36,9 @@ func TestSplitFilter(t *testing.T) {
 	// 碰到第一个零值，即结果后续的判断
 	list = SplitFilter("330003103000")
 	a.Equal(1, len(list)).Equal(list[0], "33")
+
+	list = SplitFilter("000000000000")
+	a.Empty(list)
 }
 
 func TestParent(t *testing.T) {

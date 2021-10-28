@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/issue9/assert"
+
 	"github.com/issue9/cnregion/id"
 )
 

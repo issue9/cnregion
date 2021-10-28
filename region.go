@@ -9,11 +9,11 @@ import (
 
 // Region 表示某个区域的相关信息
 type Region interface {
-	ID() string
-	Name() string
-	FullName() string
-	FullID() string
-	Items() []Region
+	ID() string       // 区域的 ID，不包括后缀 0 和上一级的 ID
+	FullID() string   // 区域的 ID，包括后缀的 0 以及上一级的 ID，长度为 12
+	Name() string     // 区域的名称
+	FullName() string // 区域的全称，包括上一级的名称
+	Items() []Region  // 子项
 }
 
 type dbRegion struct {

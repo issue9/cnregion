@@ -8,10 +8,11 @@ import (
 	"testing"
 
 	"github.com/issue9/assert"
+
 	"github.com/issue9/cnregion/id"
 )
 
-var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:2{01:合肥:3:0{}02:芜湖:1:0{}}}`)
+var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:3{01:合肥:3:0{}02:芜湖:1:0{}03:芜湖-2:1:0{}}}`)
 
 var obj = &DB{
 	versions:          []int{2020, 2019},
@@ -50,6 +51,14 @@ var obj = &DB{
 						supported: 1,
 						FullName:  "安徽-芜湖",
 						FullID:    "340200000000",
+						level:     id.City,
+					},
+					{
+						ID:        "03",
+						Name:      "芜湖-2",
+						supported: 1,
+						FullName:  "安徽-芜湖-2",
+						FullID:    "340300000000",
 						level:     id.City,
 					},
 				},
