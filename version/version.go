@@ -31,7 +31,7 @@ func IsValid(year int) bool {
 	return year >= start && year <= latest
 }
 
-// BeginWith 从 begin 开始直接最新年份
+// BeginWith 从 begin 开始直到最新年份
 func BeginWith(begin int) []int {
 	if !IsValid(begin) {
 		panic(ErrInvalidYear)

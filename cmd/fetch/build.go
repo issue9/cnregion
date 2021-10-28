@@ -33,7 +33,7 @@ func build(dataDir, output string, years ...int) error {
 
 func buildYear(d *db.DB, dataDir string, year int) error {
 	fmt.Printf("\n添加 %d 的数据\n", year)
-	if d.AddVersion(year) {
+	if !d.AddVersion(year) {
 		fmt.Printf("已经存在该年份 %d 的数据\n\n", year)
 		return nil
 	}

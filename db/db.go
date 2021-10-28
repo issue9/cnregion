@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 
 // Package db 提供区域数据文件的相关操作
+//
+// 数据格式：1:[years]:{id:name:yearIndex:size{}}
+//  1 表示数据格式的版本，采用当前包的 Version 常量；
+//  years 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
+//  id 当前区域的 ID；
+//  name 当前区域的名称；
+//  yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 years 中的索引值；
+//  size 表示子元素的数量；
 package db
 
 import (
@@ -128,19 +136,17 @@ func (db *DB) VersionIndex(year int) int {
 }
 
 // AddVersion 添加新的版本号
-func (db *DB) AddVersion(year int) (exists bool) {
+func (db *DB) AddVersion(year int) (ok bool) {
 	if db.VersionIndex(year) > -1 { // 检测 year 是否已经存在？
-		return true
+		return false
 	}
 
 	db.versions = append(db.versions, year)
-	return false
+	return true
 }
 
 // Find 查找指定 ID 对应的信息
-func (db *DB) Find(id ...string) *Region {
-	return db.region.findItem(id...)
-}
+func (db *DB) Find(id ...string) *Region { return db.region.findItem(id...) }
 
 var levelIndex = []id.Level{id.Province, id.City, id.County, id.Town, id.Village}
 
@@ -194,10 +200,10 @@ func (db *DB) unmarshal(data []byte) error {
 	}
 
 	data, val = indexBytes(data, ':')
-	arr := strings.Split(strings.Trim(val, "[]"), ",")
-	db.versions = make([]int, 0, len(arr))
-	for _, item := range arr {
-		v, err := strconv.Atoi(item)
+	years := strings.Split(strings.Trim(val, "[]"), ",")
+	db.versions = make([]int, 0, len(years))
+	for _, year := range years {
+		v, err := strconv.Atoi(year)
 		if err != nil {
 			return err
 		}
