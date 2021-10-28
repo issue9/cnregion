@@ -3,6 +3,7 @@
 package db
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/issue9/assert"
@@ -46,4 +47,19 @@ func TestDB_Search(t *testing.T) {
 	// parent 不存在
 	rs = obj.Search(&Options{Parent: "110000000000", Text: "合肥"})
 	a.Equal(0, len(rs))
+
+	// 只有 Level
+	rs = obj.Search(&Options{Level: id.City})
+	a.Equal(4, len(rs))
+	for _, r := range rs {
+		a.True(strings.HasSuffix(r.FullID, "00000000"))
+	}
+
+	// 只有 Level
+	rs = obj.Search(&Options{Level: id.City + id.Town})
+	a.Equal(4, len(rs))
+
+	// 只有 Level
+	rs = obj.Search(&Options{Level: id.City + id.Province})
+	a.Equal(6, len(rs))
 }

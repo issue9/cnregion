@@ -12,7 +12,7 @@ import (
 	"github.com/issue9/cnregion/id"
 )
 
-var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:0{}34:安徽:1:3{01:合肥:3:0{}02:芜湖:1:0{}03:芜湖-2:1:0{}}}`)
+var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:1{01:温州:3:0{}}34:安徽:1:3{01:合肥:3:0{}02:芜湖:1:0{}03:芜湖-2:1:0{}}}`)
 
 var obj = &DB{
 	versions:          []int{2020, 2019},
@@ -28,6 +28,16 @@ var obj = &DB{
 				FullName:  "浙江",
 				FullID:    "330000000000",
 				level:     id.Province,
+				Items: []*Region{
+					{
+						ID:        "01",
+						Name:      "温州",
+						supported: 3,
+						FullName:  "浙江-温州",
+						FullID:    "330100000000",
+						level:     id.City,
+					},
+				},
 			},
 			{
 				ID:        "34",
@@ -77,8 +87,11 @@ func TestMarshal(t *testing.T) {
 		Equal(len(o1.region.Items), len(obj.region.Items)).
 		Equal(o1.region.Items[0].ID, obj.region.Items[0].ID).
 		Equal(o1.region.Items[0].FullID, obj.region.Items[0].FullID).
+		Equal(o1.region.Items[0].Items[0].ID, obj.region.Items[0].Items[0].ID).
 		Equal(o1.region.Items[1].Items[0].ID, obj.region.Items[1].Items[0].ID).
-		Equal(o1.region.Items[1].Items[0].FullID, obj.region.Items[1].Items[0].FullID)
+		Equal(o1.region.Items[1].Items[0].FullID, obj.region.Items[1].Items[0].FullID).
+		Equal(o1.region.Items[1].Items[1].FullID, obj.region.Items[1].Items[1].FullID).
+		NotEqual(o1.region.Items[1].Items[1].FullID, obj.region.Items[1].Items[0].FullID)
 
 	d1, err := obj.marshal()
 	a.NotError(err).NotNil(d1)

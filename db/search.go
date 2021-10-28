@@ -68,7 +68,8 @@ func (db *DB) Search(opt *Options) []*Region {
 }
 
 func (reg *Region) search(opt *Options, list []*Region) []*Region {
-	if strings.Contains(reg.Name, opt.Text) && (reg.level&opt.Level == reg.level) {
+	if strings.Contains(reg.Name, opt.Text) &&
+		(reg.level&opt.Level == reg.level) && reg.level != 0 { // level == 0 只有根元素才有
 		list = append(list, reg)
 		opt.Max--
 	}
