@@ -6,13 +6,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 
 	"github.com/issue9/cnregion/id"
 )
 
 func TestDB_Search(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	rs := obj.Search(&Options{Text: "合肥"})
 	a.Equal(1, len(rs)).

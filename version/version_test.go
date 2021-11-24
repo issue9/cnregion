@@ -5,11 +5,11 @@ package version
 import (
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestAll(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	all := All()
 	// 保证从大到小
@@ -18,7 +18,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestBeginWith(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	list := BeginWith(latest)
 	a.Equal(1, len(list)).Equal(list[0], latest)

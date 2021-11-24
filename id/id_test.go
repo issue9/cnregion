@@ -5,11 +5,11 @@ package id
 import (
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestSplit(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	province, city, county, town, village := Split("330203103233")
 	a.Equal(province, "33").
@@ -24,7 +24,7 @@ func TestSplit(t *testing.T) {
 }
 
 func TestSplitFilter(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	list := SplitFilter("330203103000")
 	a.Equal(4, len(list)).
@@ -42,14 +42,14 @@ func TestSplitFilter(t *testing.T) {
 }
 
 func TestParent(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.Equal(Parent("330300000000"), "33")
 	a.Equal(Parent("330302111000"), "330302")
 }
 
 func TestPrefix(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.Equal(Prefix("330301001001"), "330301001001")
 	a.Equal(Prefix("330300000000"), "3303")
@@ -57,7 +57,7 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestFill(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.Equal(Fill("34", Village), "340000000000")
 	a.Equal(Fill("3", Village), "300000000000")
@@ -70,7 +70,7 @@ func TestFill(t *testing.T) {
 }
 
 func TestIsZero(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.True(isZero("000"))
 	a.False(isZero("00x"))

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 
 	"github.com/issue9/cnregion/id"
 )
@@ -78,7 +78,7 @@ var obj = &DB{
 }
 
 func TestMarshal(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	o1, err := Unmarshal(data, "-")
 	a.NotError(err).
@@ -102,7 +102,7 @@ func TestMarshal(t *testing.T) {
 }
 
 func TestDB_LoadDump(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	path := filepath.Join(os.TempDir(), "cnregion_db.dict")
 	a.NotError(obj.Dump(path, false))
@@ -116,7 +116,7 @@ func TestDB_LoadDump(t *testing.T) {
 }
 
 func TestDB_Find(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	r := obj.Find("34", "01")
 	a.NotNil(r).Equal(r.Name, "合肥").Equal(r.FullName, "安徽-合肥")
@@ -136,7 +136,7 @@ func TestDB_Find(t *testing.T) {
 }
 
 func TestDB_VersionIndex(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	a.Equal(0, obj.VersionIndex(2020))
 	a.Equal(1, obj.VersionIndex(2019))

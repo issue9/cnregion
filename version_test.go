@@ -6,11 +6,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestLoadFS(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	v, err := LoadFS(os.DirFS("./data"), "regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)
@@ -23,7 +23,7 @@ func TestLoadFS(t *testing.T) {
 }
 
 func TestVersion_Find(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	// 2020
 	v, err := LoadFile("./data/regions.db", ">", 2020)
@@ -59,7 +59,7 @@ func TestVersion_Find(t *testing.T) {
 }
 
 func TestRegion_Items(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	// 2020
 	var x05, x22 bool
@@ -110,7 +110,7 @@ func TestRegion_Items(t *testing.T) {
 }
 
 func TestVersion_Provinces(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	v, err := LoadFile("./data/regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)
@@ -127,7 +127,7 @@ func TestVersion_Provinces(t *testing.T) {
 }
 
 func TestVersion_Districts(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	v, err := LoadFile("./data/regions.db", ">", 2020)
 	a.NotError(err).NotNil(v)

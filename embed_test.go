@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+//go:build cnregion
 // +build cnregion
 
 package cnregion
@@ -7,11 +8,11 @@ package cnregion
 import (
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 )
 
 func TestEmbed(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	v, err := Embed(">", 2020)
 	a.NotError(err).NotNil(v)

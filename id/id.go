@@ -88,6 +88,9 @@ func Prefix(id string) string {
 }
 
 // Fill 为 id 填充后缀的 0
+//
+// id 为原始值；
+// level 为需要达到的行政级别，最终的长度为 Length(level)。
 func Fill(id string, level Level) string {
 	rem := Length(level) - len(id)
 	switch {

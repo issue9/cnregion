@@ -5,13 +5,13 @@ package db
 import (
 	"testing"
 
-	"github.com/issue9/assert"
+	"github.com/issue9/assert/v2"
 
 	"github.com/issue9/cnregion/id"
 )
 
 func TestRegion_IsSupported(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	obj := &DB{versions: []int{2020, 2019, 2018}}
 	obj.region = &Region{Items: []*Region{
@@ -25,7 +25,7 @@ func TestRegion_IsSupported(t *testing.T) {
 }
 
 func TestRegion_addItem(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	obj := &DB{versions: []int{2020, 2019, 2018}}
 	obj.region = &Region{Items: []*Region{}, db: obj}
@@ -42,7 +42,7 @@ func TestRegion_addItem(t *testing.T) {
 }
 
 func TestRegion_SetSupported(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	obj := &DB{versions: []int{2020, 2019, 2018}}
 	obj.region = &Region{Items: []*Region{{db: obj}}, db: obj}
@@ -54,7 +54,7 @@ func TestRegion_SetSupported(t *testing.T) {
 }
 
 func TestFindEnd(t *testing.T) {
-	a := assert.New(t)
+	a := assert.New(t, false)
 
 	data := []byte("0123{56}")
 	a.Equal(findEnd(data), 7)
