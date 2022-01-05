@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/issue9/errwrap"
@@ -18,10 +20,20 @@ import (
 	"github.com/issue9/cnregion/id"
 )
 
-type files map[string][]*item
+type files struct {
+	lock  *sync.Mutex
+	items map[string][]*item
+}
 
 type item struct {
 	id, text string
+}
+
+func newFiles() *files {
+	return &files{
+		lock:  &sync.Mutex{},
+		items: make(map[string][]*item, 40),
+	}
 }
 
 func (fs files) append(id, text string) {
@@ -30,15 +42,18 @@ func (fs files) append(id, text string) {
 		return
 	}
 
+	fs.lock.Lock()
+	defer fs.lock.Unlock()
+
 	path := id[:2]
-	if _, found := fs[path]; !found {
-		fs[path] = make([]*item, 0, 100)
+	if _, found := fs.items[path]; !found {
+		fs.items[path] = make([]*item, 0, 100)
 	}
-	fs[path] = append(fs[path], &item{id: id, text: text})
+	fs.items[path] = append(fs.items[path], &item{id: id, text: text})
 }
 
 func (fs files) dump(dir string) error {
-	for id, items := range fs {
+	for id, items := range fs.items {
 		sort.SliceStable(items, func(i, j int) bool { return items[i].id < items[j].id })
 
 		buf := errwrap.Buffer{Buffer: bytes.Buffer{}}
@@ -60,12 +75,23 @@ func (fs files) dump(dir string) error {
 
 func collect(dir string, base string) error {
 	expr := base + "/[0-9]+.html"
-	c := colly.NewCollector(colly.URLFilters(
-		regexp.MustCompile(base),
-		regexp.MustCompile(expr),
-	), colly.DetectCharset())
+	c := colly.NewCollector(
+		colly.URLFilters(
+			regexp.MustCompile(base),
+			regexp.MustCompile(expr),
+		),
+		colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"),
+		colly.DetectCharset(),
+		colly.Async(true),
+		colly.AllowURLRevisit(),
+	)
 
-	fs := files{}
+	rule := &colly.LimitRule{DomainGlob: "*", Parallelism: 50, RandomDelay: 10 * time.Second}
+	if err := c.Limit(rule); err != nil {
+		return err
+	}
+
+	fs := newFiles()
 
 	digit := regexp.MustCompile("[0-9]+")
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
