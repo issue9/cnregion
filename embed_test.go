@@ -9,12 +9,14 @@ import (
 	"testing"
 
 	"github.com/issue9/assert/v2"
+
+	"github.com/issue9/cnregion/data"
 )
 
 func TestEmbed(t *testing.T) {
 	a := assert.New(t, false)
 
-	v, err := Embed(">", 2020)
+	v, err := Load(data.Data, ">", 2020)
 	a.NotError(err).NotNil(v)
 	r := v.Find("330305000000")
 	a.NotNil(r).

@@ -22,14 +22,10 @@ const start = 2009
 var latest = time.Now().Year() - 1
 
 // All 返回支持的版本号列表
-func All() []int {
-	return BeginWith(start)
-}
+func All() []int { return BeginWith(start) }
 
 // IsValid 验证年份是否为一个有效的版本号
-func IsValid(year int) bool {
-	return year >= start && year <= latest
-}
+func IsValid(year int) bool { return year >= start && year <= latest }
 
 // BeginWith 从 begin 开始直到最新年份
 func BeginWith(begin int) []int {

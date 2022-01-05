@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/github/license/issue9/cnregion)
 
 历年统计用区域和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
-符合国家标准GB/T 2260与GB/T 10114。
+符合国家标准 GB/T 2260 与 GB/T 10114。
 
 *从 0.3.0 开始引入了 io/fs 和 embed 两个包，只支持 go1.16 以之后的版本*
 

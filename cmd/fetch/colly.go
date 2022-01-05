@@ -59,7 +59,7 @@ func (fs files) dump(dir string) error {
 }
 
 func collect(dir string, base string) error {
-	expr := base + "/[0-9]*.html"
+	expr := base + "/[0-9]+.html"
 	c := colly.NewCollector(colly.URLFilters(
 		regexp.MustCompile(base),
 		regexp.MustCompile(expr),
@@ -67,8 +67,15 @@ func collect(dir string, base string) error {
 
 	fs := files{}
 
+	digit := regexp.MustCompile("[0-9]+")
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href"))
+		if digit.MatchString(e.Text) {
+			return
+		}
+
+		if err := e.Request.Visit(e.Attr("href")); err != nil {
+			fmt.Printf("ERROR: %s @ %s\n", err, e.Text)
+		}
 	})
 
 	// 省
@@ -107,6 +114,15 @@ func collect(dir string, base string) error {
 
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Printf("抓取 %s\n", r.URL)
+	})
+
+	c.OnError(func(resp *colly.Response, err error) {
+		fmt.Printf("ERROR: %s 并返回状态码 %d\n", err, resp.StatusCode)
+
+		// 重试
+		if err := c.Visit(resp.Request.URL.String()); err != nil {
+			fmt.Printf("ERROR:%s at visit %s", err, resp.Request.URL.String())
+		}
 	})
 
 	if err := c.Visit(base); err != nil {
