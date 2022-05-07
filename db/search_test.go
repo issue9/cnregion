@@ -70,10 +70,10 @@ func TestDB_SearchWithData(t *testing.T) {
 
 	obj, err := LoadFS(os.DirFS("../data"), "regions.db", "-", true)
 	a.NotError(err).NotNil(obj)
-	//got := obj.Search(&Options{Text: "温州"})
-	//a.NotEmpty(got)
+	got := obj.Search(&Options{Text: "温州"})
+	a.NotEmpty(got)
 
 	// Level 不匹配
-	got := obj.Search(&Options{Text: "温州", Level: id.Province})
+	got = obj.Search(&Options{Text: "温州", Level: id.Province})
 	a.Empty(got)
 }
