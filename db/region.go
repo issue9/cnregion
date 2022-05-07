@@ -101,7 +101,9 @@ func (reg *Region) marshal(buf *errwrap.Buffer) error {
 	return nil
 }
 
-func (reg *Region) unmarshal(data []byte, parentName, parentID string) error {
+func (reg *Region) unmarshal(data []byte, parentName, parentID string, level id.Level) error {
+	reg.level = level
+
 	data, reg.ID = indexBytes(data, ':')
 
 	data, reg.Name = indexBytes(data, ':')
@@ -132,8 +134,16 @@ func (reg *Region) unmarshal(data []byte, parentName, parentID string) error {
 				return errors.New("未找到结束符号 }")
 			}
 
+			// 下一级的 Level
+			var next id.Level
+			if level == 0 {
+				next = id.Province
+			} else {
+				next = level >> 1
+			}
+
 			item := &Region{db: reg.db}
-			if err := item.unmarshal(data[:index], reg.FullName, parentID); err != nil {
+			if err := item.unmarshal(data[:index], reg.FullName, parentID, next); err != nil {
 				return err
 			}
 			reg.Items = append(reg.Items, item)

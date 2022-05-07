@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/issue9/assert/v2"
+
+	"github.com/issue9/cnregion/id"
 )
 
 func TestLoadFS(t *testing.T) {
@@ -20,6 +22,19 @@ func TestLoadFS(t *testing.T) {
 		Equal(r.FullID(), "330305000000").
 		Equal(r.Name(), "洞头区").
 		Equal(r.FullName(), "浙江省>温州市>洞头区")
+}
+
+func TestVersion_Search(t *testing.T) {
+	a := assert.New(t, false)
+
+	cn, err := LoadFS(os.DirFS("./data"), "regions.db", ">", 2021)
+	a.NotError(err).NotNil(cn)
+
+	got := cn.Search(&SearchOptions{Text: "温州"})
+	a.NotEmpty(got)
+
+	got = cn.Search(&SearchOptions{Text: "温州", Level: id.Province | id.City})
+	a.NotEmpty(got)
 }
 
 func TestVersion_Find(t *testing.T) {

@@ -3,6 +3,7 @@
 package db
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -62,4 +63,17 @@ func TestDB_Search(t *testing.T) {
 	// 只有 Level
 	rs = obj.Search(&Options{Level: id.City + id.Province})
 	a.Equal(6, len(rs))
+}
+
+func TestDB_SearchWithData(t *testing.T) {
+	a := assert.New(t, false)
+
+	obj, err := LoadFS(os.DirFS("../data"), "regions.db", "-", true)
+	a.NotError(err).NotNil(obj)
+	//got := obj.Search(&Options{Text: "温州"})
+	//a.NotEmpty(got)
+
+	// Level 不匹配
+	got := obj.Search(&Options{Text: "温州", Level: id.Province})
+	a.Empty(got)
 }

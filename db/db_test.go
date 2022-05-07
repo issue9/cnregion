@@ -10,6 +10,7 @@ import (
 	"github.com/issue9/assert/v2"
 
 	"github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/version"
 )
 
 var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:1{01:温州:3:0{}}34:安徽:1:3{01:合肥:3:0{}02:芜湖:1:0{}03:芜湖-2:1:0{}}}`)
@@ -113,6 +114,21 @@ func TestDB_LoadDump(t *testing.T) {
 	a.NotError(obj.Dump(path, true))
 	d, err = LoadFile(path, "-", true)
 	a.NotError(err).NotNil(d)
+}
+
+func TestLoadFS(t *testing.T) {
+	a := assert.New(t, false)
+
+	obj, err := LoadFS(os.DirFS("../data"), "regions.db", "-", true)
+	a.NotError(err).NotNil(obj)
+	a.Equal(obj.versions, version.All()).
+		Equal(obj.fullNameSeparator, "-").
+		True(len(obj.region.Items) > 0).
+		Equal(obj.region.Items[0].level, id.Province).
+		Equal(obj.region.Items[0].Items[0].level, id.City).
+		Equal(obj.region.Items[0].Items[0].Items[0].level, id.County).
+		Equal(obj.region.Items[1].level, id.Province).
+		Equal(obj.region.Items[2].Items[0].level, id.City)
 }
 
 func TestDB_Find(t *testing.T) {
