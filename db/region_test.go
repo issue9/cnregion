@@ -15,7 +15,7 @@ func TestRegion_IsSupported(t *testing.T) {
 
 	obj := &DB{versions: []int{2020, 2019, 2018}}
 	obj.region = &Region{Items: []*Region{
-		{supported: 3, Name: "test", db: obj},
+		{Versions: []int{2020, 2019}, Name: "test", db: obj},
 	}, db: obj}
 
 	a.True(obj.region.Items[0].IsSupported(2020))
@@ -48,8 +48,10 @@ func TestRegion_SetSupported(t *testing.T) {
 	obj.region = &Region{Items: []*Region{{db: obj}}, db: obj}
 
 	a.NotError(obj.region.addItem("33", "浙江", id.Province, 2020))
-	a.NotError(obj.region.Items[0].setSupported(2020))
-	a.NotError(obj.region.Items[0].setSupported(2019))
+	a.NotError(obj.region.Items[0].setSupported(2020)).
+		Equal(obj.region.Items[0].Versions, []int{2020})
+	a.NotError(obj.region.Items[0].setSupported(2019)).
+		Equal(obj.region.Items[0].Versions, []int{2020, 2019})
 	a.ErrorString(obj.region.Items[0].setSupported(2001), "不存在该年份")
 }
 

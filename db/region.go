@@ -15,10 +15,10 @@ import (
 
 // Region 表示单个区域
 type Region struct {
-	ID        string
-	Name      string
-	supported int // 支持的版本号
-	Items     []*Region
+	ID       string
+	Name     string
+	Items    []*Region
+	Versions []int // 支持的版本号列表
 
 	// 以下数据不会写入数据文件中
 
@@ -29,20 +29,18 @@ type Region struct {
 }
 
 // IsSupported 当前数据是否支持该年份
-func (reg *Region) IsSupported(year int) bool {
-	index := reg.db.VersionIndex(year)
-	if index == -1 {
-		return false
+func (reg *Region) IsSupported(ver int) bool {
+	for _, y := range reg.Versions {
+		if y == ver {
+			return true
+		}
 	}
-
-	flag := 1 << index
-	return reg.supported&flag == flag
+	return false
 }
 
-func (reg *Region) addItem(id, name string, level id.Level, year int) error {
-	index := reg.db.VersionIndex(year)
-	if index == -1 {
-		return fmt.Errorf("不支持该年份 %d 的数据", year)
+func (reg *Region) addItem(id, name string, level id.Level, ver int) error {
+	if index := reg.db.VersionIndex(ver); index == -1 {
+		return fmt.Errorf("不支持该年份 %d 的数据", ver)
 	}
 
 	for _, item := range reg.Items {
@@ -52,24 +50,23 @@ func (reg *Region) addItem(id, name string, level id.Level, year int) error {
 	}
 
 	reg.Items = append(reg.Items, &Region{
-		ID:        id,
-		Name:      name,
-		supported: 1 << index,
-		db:        reg.db,
-		level:     level,
+		ID:       id,
+		Name:     name,
+		db:       reg.db,
+		level:    level,
+		Versions: []int{ver},
 	})
 	return nil
 }
 
-func (reg *Region) setSupported(year int) error {
-	index := reg.db.VersionIndex(year)
+func (reg *Region) setSupported(ver int) error {
+	index := reg.db.VersionIndex(ver)
 	if index == -1 {
-		return fmt.Errorf("不存在该年份 %d 的数据", year)
+		return fmt.Errorf("不存在该年份 %d 的数据", ver)
 	}
 
-	flag := 1 << index
-	if reg.supported&flag == 0 {
-		reg.supported += flag
+	if !reg.IsSupported(ver) {
+		reg.Versions = append(reg.Versions, ver)
 	}
 	return nil
 }
@@ -89,7 +86,15 @@ func (reg *Region) findItem(regionID ...string) *Region {
 }
 
 func (reg *Region) marshal(buf *errwrap.Buffer) error {
-	buf.Printf("%s:%s:%d:%d{", reg.ID, reg.Name, reg.supported, len(reg.Items))
+	supported := 0
+	for _, ver := range reg.Versions {
+		index := reg.db.VersionIndex(ver)
+		if index == -1 {
+			return fmt.Errorf("无效的年份 %d 位于 %s", ver, reg.FullName)
+		}
+		supported += 1 << index
+	}
+	buf.Printf("%s:%s:%d:%d{", reg.ID, reg.Name, supported, len(reg.Items))
 	for _, item := range reg.Items {
 		err := item.marshal(buf)
 		if err != nil {
@@ -114,12 +119,19 @@ func (reg *Region) unmarshal(data []byte, parentName, parentID string, level id.
 	parentID += reg.ID
 	reg.FullID = id.Fill(parentID, id.Village)
 
+	// Versions
 	data, val := indexBytes(data, ':')
 	supported, err := strconv.Atoi(val)
 	if err != nil {
 		return err
 	}
-	reg.supported = supported
+	versions := make([]int, 0, len(reg.db.versions))
+	for i, v := range reg.db.versions {
+		if flag := 1 << i; flag&supported == flag {
+			versions = append(versions, v)
+		}
+	}
+	reg.Versions = versions
 
 	data, val = indexBytes(data, '{')
 	size, err := strconv.Atoi(val)

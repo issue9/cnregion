@@ -14,6 +14,7 @@ type Region interface {
 	Name() string     // 区域的名称
 	FullName() string // 区域的全称，包括上一级的名称
 	Items() []Region  // 子项
+	Versions() []int  // 支持的年份版本
 }
 
 type dbRegion struct {
@@ -22,6 +23,7 @@ type dbRegion struct {
 }
 
 type districtRegion struct {
+	v                          *Version
 	id, name, fullName, fullID string
 	items                      []Region
 }
@@ -40,6 +42,7 @@ func (r *dbRegion) ID() string       { return r.r.ID }
 func (r *dbRegion) Name() string     { return r.r.Name }
 func (r *dbRegion) FullName() string { return r.r.FullName }
 func (r *dbRegion) FullID() string   { return r.r.FullID }
+func (r *dbRegion) Versions() []int  { return r.r.Versions }
 
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))
@@ -56,3 +59,4 @@ func (r *districtRegion) Name() string     { return r.name }
 func (r *districtRegion) FullName() string { return r.fullName }
 func (r *districtRegion) FullID() string   { return r.fullID }
 func (r *districtRegion) Items() []Region  { return r.items }
+func (r *districtRegion) Versions() []int  { return r.v.versions }

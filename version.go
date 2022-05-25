@@ -116,17 +116,18 @@ func (v *Version) Districts() []Region {
 		dMap := make(map[byte]*districtRegion, len(districtsMap))
 		provinces := v.Provinces()
 
-		for k, v := range districtsMap {
-			dMap[k] = &districtRegion{
-				id:       string(k),
-				name:     v,
-				fullName: v,
-				fullID:   id.Fill(string(k), id.Village),
+		for index, name := range districtsMap {
+			dMap[index] = &districtRegion{
+				v:        v,
+				id:       string(index),
+				name:     name,
+				fullName: name,
+				fullID:   id.Fill(string(index), id.Village),
 			}
 
 			for _, p := range provinces {
-				if p.ID()[0] == k {
-					dMap[k].items = append(dMap[k].items, p)
+				if p.ID()[0] == index {
+					dMap[index].items = append(dMap[index].items, p)
 				}
 			}
 		}

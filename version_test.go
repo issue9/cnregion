@@ -68,9 +68,13 @@ func TestVersion_Find(t *testing.T) {
 	v, err = LoadFile("./data/regions.db", ">")
 	a.NotError(err).NotNil(v)
 	r = v.Find("330322000000")
-	a.NotNil(r).Equal(r.ID(), "22")
+	a.NotNil(r).
+		Equal(r.ID(), "22").
+		Equal(r.Versions(), []int{2014, 2013, 2012, 2011, 2010, 2009})
 	r = v.Find("330305000000")
-	a.NotNil(r).Equal(r.ID(), "05")
+	a.NotNil(r).
+		Equal(r.ID(), "05").
+		Contains(r.Versions(), []int{2018, 2017, 2016, 2015})
 }
 
 func TestRegion_Items(t *testing.T) {

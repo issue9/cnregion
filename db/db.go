@@ -2,9 +2,9 @@
 
 // Package db 提供区域数据文件的相关操作
 //
-// 数据格式：1:[years]:{id:name:yearIndex:size{}}
+// 数据格式：1:[versions]:{id:name:yearIndex:size{}}
 //  1 表示数据格式的版本，采用当前包的 Version 常量；
-//  years 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
+//  versions 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
 //  id 当前区域的 ID；
 //  name 当前区域的名称；
 //  yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 years 中的索引值；
@@ -126,9 +126,9 @@ func Unmarshal(data []byte, separator string) (*DB, error) {
 // VersionIndex 指定年份在 Versions 中的下标
 //
 // 如果不存在，返回 -1
-func (db *DB) VersionIndex(year int) int {
+func (db *DB) VersionIndex(ver int) int {
 	for i, v := range db.versions {
-		if v == year {
+		if v == ver {
 			return i
 		}
 	}
@@ -136,12 +136,12 @@ func (db *DB) VersionIndex(year int) int {
 }
 
 // AddVersion 添加新的版本号
-func (db *DB) AddVersion(year int) (ok bool) {
-	if db.VersionIndex(year) > -1 { // 检测 year 是否已经存在？
+func (db *DB) AddVersion(ver int) (ok bool) {
+	if db.VersionIndex(ver) > -1 { // 检测 ver 是否已经存在
 		return false
 	}
 
-	db.versions = append(db.versions, year)
+	db.versions = append(db.versions, ver)
 	return true
 }
 
@@ -151,7 +151,7 @@ func (db *DB) Find(id ...string) *Region { return db.region.findItem(id...) }
 var levelIndex = []id.Level{id.Province, id.City, id.County, id.Town, id.Village}
 
 // AddItem 添加一条子项
-func (db *DB) AddItem(regionID, name string, year int) error {
+func (db *DB) AddItem(regionID, name string, ver int) error {
 	list := id.SplitFilter(regionID)
 	item := db.Find(list...)
 
@@ -159,10 +159,10 @@ func (db *DB) AddItem(regionID, name string, year int) error {
 		items := list[:len(list)-1] // 上一级
 		item = db.Find(items...)
 		level := levelIndex[len(items)]
-		return item.addItem(list[len(list)-1], name, level, year)
+		return item.addItem(list[len(list)-1], name, level, ver)
 	}
 
-	return item.setSupported(year)
+	return item.setSupported(ver)
 }
 
 func (db *DB) marshal() ([]byte, error) {
@@ -200,10 +200,10 @@ func (db *DB) unmarshal(data []byte) error {
 	}
 
 	data, val = indexBytes(data, ':')
-	years := strings.Split(strings.Trim(val, "[]"), ",")
-	db.versions = make([]int, 0, len(years))
-	for _, year := range years {
-		v, err := strconv.Atoi(year)
+	versions := strings.Split(strings.Trim(val, "[]"), ",")
+	db.versions = make([]int, 0, len(versions))
+	for _, version := range versions {
+		v, err := strconv.Atoi(version)
 		if err != nil {
 			return err
 		}

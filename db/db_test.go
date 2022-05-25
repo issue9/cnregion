@@ -19,63 +19,74 @@ var obj = &DB{
 	versions:          []int{2020, 2019},
 	fullNameSeparator: "-",
 	region: &Region{
-		Name:      "",
-		supported: 1,
+		Name:     "",
+		Versions: []int{2020},
 		Items: []*Region{
 			{
-				ID:        "33",
-				Name:      "浙江",
-				supported: 1,
-				FullName:  "浙江",
-				FullID:    "330000000000",
-				level:     id.Province,
+				ID:       "33",
+				Name:     "浙江",
+				Versions: []int{2020},
+				FullName: "浙江",
+				FullID:   "330000000000",
+				level:    id.Province,
 				Items: []*Region{
 					{
-						ID:        "01",
-						Name:      "温州",
-						supported: 3,
-						FullName:  "浙江-温州",
-						FullID:    "330100000000",
-						level:     id.City,
+						ID:       "01",
+						Name:     "温州",
+						Versions: []int{2020, 2019},
+						FullName: "浙江-温州",
+						FullID:   "330100000000",
+						level:    id.City,
 					},
 				},
 			},
 			{
-				ID:        "34",
-				Name:      "安徽",
-				FullName:  "安徽",
-				FullID:    "340000000000",
-				supported: 1,
-				level:     id.Province,
+				ID:       "34",
+				Name:     "安徽",
+				FullName: "安徽",
+				FullID:   "340000000000",
+				Versions: []int{2020},
+				level:    id.Province,
 				Items: []*Region{
 					{
-						ID:        "01",
-						Name:      "合肥",
-						supported: 3,
-						FullName:  "安徽-合肥",
-						FullID:    "340100000000",
-						level:     id.City,
+						ID:       "01",
+						Name:     "合肥",
+						Versions: []int{2020, 2019},
+						FullName: "安徽-合肥",
+						FullID:   "340100000000",
+						level:    id.City,
 					},
 					{
-						ID:        "02",
-						Name:      "芜湖",
-						supported: 1,
-						FullName:  "安徽-芜湖",
-						FullID:    "340200000000",
-						level:     id.City,
+						ID:       "02",
+						Name:     "芜湖",
+						Versions: []int{2020},
+						FullName: "安徽-芜湖",
+						FullID:   "340200000000",
+						level:    id.City,
 					},
 					{
-						ID:        "03",
-						Name:      "芜湖-2",
-						supported: 1,
-						FullName:  "安徽-芜湖-2",
-						FullID:    "340300000000",
-						level:     id.City,
+						ID:       "03",
+						Name:     "芜湖-2",
+						Versions: []int{2020},
+						FullName: "安徽-芜湖-2",
+						FullID:   "340300000000",
+						level:    id.City,
 					},
 				},
 			},
 		},
 	},
+}
+
+func init() {
+	setRegionDB(obj.region, obj)
+}
+
+func setRegionDB(r *Region, db *DB) {
+	r.db = db
+	for _, i := range r.Items {
+		setRegionDB(i, db)
+	}
 }
 
 func TestMarshal(t *testing.T) {
