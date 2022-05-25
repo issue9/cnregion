@@ -9,6 +9,7 @@ import (
 	"github.com/issue9/assert/v2"
 
 	"github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/version"
 )
 
 func TestLoadFS(t *testing.T) {
@@ -65,7 +66,7 @@ func TestVersion_Find(t *testing.T) {
 	a.Nil(r)
 
 	// 所有年份的数据
-	v, err = LoadFile("./data/regions.db", ">")
+	v, err = LoadFile("./data/regions.db", ">", version.Range(2009, 2020)...)
 	a.NotError(err).NotNil(v)
 	r = v.Find("330322000000")
 	a.NotNil(r).

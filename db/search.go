@@ -8,7 +8,7 @@ import (
 	"github.com/issue9/cnregion/id"
 )
 
-// Options 搜索的附加选项
+// Options 搜索选项
 type Options struct {
 	// 表示你需要搜索的地名需要包含的内容
 	//

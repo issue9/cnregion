@@ -63,7 +63,7 @@ func LoadFS(f fs.FS, file, separator string, compress bool) (*DB, error) {
 	return Load(data, separator, compress)
 }
 
-// Load 返回 DB 对象
+// Load 将数据内容加载至 DB 对象
 func Load(data []byte, separator string, compress bool) (*DB, error) {
 	if compress {
 		rd, err := gzip.NewReader(bytes.NewReader(data))

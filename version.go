@@ -8,7 +8,6 @@ import (
 
 	"github.com/issue9/cnregion/db"
 	"github.com/issue9/cnregion/id"
-	"github.com/issue9/cnregion/version"
 )
 
 // Version 用于描述与特定版本相关的区域数据
@@ -25,7 +24,7 @@ type Version struct {
 // 有关数据版本的具体说明，可以参考 github.com/issue9/cnregion/version 包中的相关说明。
 func New(db *db.DB, versions ...int) (*Version, error) {
 	if len(versions) == 0 {
-		versions = version.All()
+		panic("versions 不能为空")
 	}
 
 	for _, v := range versions {
