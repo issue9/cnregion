@@ -49,7 +49,8 @@ func TestVersion_Find(t *testing.T) {
 		Equal(r.ID(), "05").
 		Equal(r.FullID(), "330305000000").
 		Equal(r.Name(), "洞头区").
-		Equal(r.FullName(), "浙江省>温州市>洞头区")
+		Equal(r.FullName(), "浙江省>温州市>洞头区").
+		Equal(r.Versions(), []int{2020})
 	r = v.Find("330322000000") // 洞头县，已改为洞头区
 	a.Nil(r)
 
@@ -61,7 +62,8 @@ func TestVersion_Find(t *testing.T) {
 		Equal(r.ID(), "22").
 		Equal(r.FullID(), "330322000000").
 		Equal(r.Name(), "洞头县").
-		Equal(r.FullName(), "浙江省>温州市>洞头县")
+		Equal(r.FullName(), "浙江省>温州市>洞头县").
+		Equal(r.Versions(), []int{2009})
 	r = v.Find("330305000000")
 	a.Nil(r)
 

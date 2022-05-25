@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/issue9/cmdopt v0.7.1
-	github.com/issue9/cnregion v1.2020.0
+	github.com/issue9/cnregion v1.2021.1
 	github.com/issue9/errwrap v0.2.1
 )
 

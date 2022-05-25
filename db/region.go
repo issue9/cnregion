@@ -131,7 +131,7 @@ func (reg *Region) unmarshal(data []byte, parentName, parentID string, level id.
 			versions = append(versions, v)
 		}
 	}
-	reg.Versions = versions
+	reg.Versions = reg.db.filterVersions(versions)
 
 	data, val = indexBytes(data, '{')
 	size, err := strconv.Atoi(val)

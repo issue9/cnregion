@@ -30,12 +30,10 @@ type districtRegion struct {
 
 // Find 查找指定 ID 所表示的 Region
 func (v *Version) Find(regionID string) Region {
-	dr := v.db.Find(id.SplitFilter(regionID)...)
-	if dr == nil || !v.isSupported(dr) {
-		return nil
+	if dr := v.db.Find(id.SplitFilter(regionID)...); dr != nil {
+		return &dbRegion{r: dr, v: v}
 	}
-
-	return &dbRegion{r: dr, v: v}
+	return nil
 }
 
 func (r *dbRegion) ID() string       { return r.r.ID }
@@ -47,9 +45,7 @@ func (r *dbRegion) Versions() []int  { return r.r.Versions }
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))
 	for _, item := range r.r.Items {
-		if r.v.isSupported(item) {
-			items = append(items, &dbRegion{r: item, v: r.v})
-		}
+		items = append(items, &dbRegion{r: item, v: r.v})
 	}
 	return items
 }
@@ -59,4 +55,4 @@ func (r *districtRegion) Name() string     { return r.name }
 func (r *districtRegion) FullName() string { return r.fullName }
 func (r *districtRegion) FullID() string   { return r.fullID }
 func (r *districtRegion) Items() []Region  { return r.items }
-func (r *districtRegion) Versions() []int  { return r.v.versions }
+func (r *districtRegion) Versions() []int  { return r.v.db.Versions() }

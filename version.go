@@ -3,7 +3,6 @@
 package cnregion
 
 import (
-	"fmt"
 	"io/fs"
 
 	"github.com/issue9/cnregion/db"
@@ -12,76 +11,45 @@ import (
 
 // Version 用于描述与特定版本相关的区域数据
 type Version struct {
-	versions  []int
 	db        *db.DB
 	provinces []Region
 	districts []Region
 }
 
 // New 返回 Version 实例
-//
-// versions 表示需要加载的数据版本，即四位数的年份，可以同时指定多个版本。
-// 有关数据版本的具体说明，可以参考 github.com/issue9/cnregion/version 包中的相关说明。
-func New(db *db.DB, versions ...int) (*Version, error) {
-	if len(versions) == 0 {
-		panic("versions 不能为空")
-	}
-
-	for _, v := range versions {
-		if -1 == db.VersionIndex(v) {
-			return nil, fmt.Errorf("版本号 %d 并不存在于 db", v)
-		}
-	}
-
-	return &Version{
-		versions: versions,
-		db:       db,
-	}, nil
-}
+func New(db *db.DB) (*Version, error) { return &Version{db: db}, nil }
 
 // LoadFS 从 path 加载数据并初始化 Version 实例
 //
 // separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
 func LoadFS(f fs.FS, path, separator string, version ...int) (*Version, error) {
-	d, err := db.LoadFS(f, path, separator, true)
+	d, err := db.LoadFS(f, path, separator, true, version...)
 	if err != nil {
 		return nil, err
 	}
-
-	return New(d, version...)
+	return New(d)
 }
 
 // Load 加载 data 数据初始化 Version 实例
 //
 // separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
 func Load(data []byte, separator string, version ...int) (*Version, error) {
-	d, err := db.Load(data, separator, true)
+	d, err := db.Load(data, separator, true, version...)
 	if err != nil {
 		return nil, err
 	}
-
-	return New(d, version...)
+	return New(d)
 }
 
 // LoadFile 从 path 加载数据并初始化 Version 实例
 //
 // separator 表示地名全名显示中，上下级之间的分隔符，比如"浙江-温州"，可以为空。
 func LoadFile(path, separator string, version ...int) (*Version, error) {
-	d, err := db.LoadFile(path, separator, true)
+	d, err := db.LoadFile(path, separator, true, version...)
 	if err != nil {
 		return nil, err
 	}
-
-	return New(d, version...)
-}
-
-func (v *Version) isSupported(r *db.Region) bool {
-	for _, vv := range v.versions {
-		if r.IsSupported(vv) {
-			return true
-		}
-	}
-	return false
+	return New(d)
 }
 
 // SearchOptions 为搜索功能提供的参数
@@ -103,7 +71,6 @@ func (v *Version) Provinces() []Region {
 		root := v.db.Find()
 		v.provinces = (&dbRegion{r: root, v: v}).Items()
 	}
-
 	return v.provinces
 }
 

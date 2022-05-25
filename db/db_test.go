@@ -111,6 +111,10 @@ func TestLoad(t *testing.T) {
 
 	_, err = Load([]byte("100:[2020]:::1:0{}"), "-", false)
 	a.Equal(err, ErrIncompatible)
+
+	o1, err = Load(data, "-", false, 2019)
+	a.NotError(err).
+		Equal(0, len(o1.root.Items))
 }
 
 func TestDB_LoadDump(t *testing.T) {

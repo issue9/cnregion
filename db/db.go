@@ -43,6 +43,10 @@ type DB struct {
 	// 以下数据不会写入数据文件中
 
 	fullNameSeparator string
+
+	// Load 指定的过滤版本，仅在 unmarshal 过程中使用，
+	// 在完成 unmarshal 之的清空。
+	filters []int
 }
 
 // New 返回 DB 的空对象
@@ -82,7 +86,7 @@ func Load(data []byte, separator string, compress bool, version ...int) (*DB, er
 
 	db := &DB{
 		fullNameSeparator: separator,
-		versions:          version,
+		filters:           version,
 	}
 	if err := db.unmarshal(data); err != nil {
 		return nil, err
@@ -121,6 +125,8 @@ func (db *DB) Dump(file string, compress bool) error {
 
 	return ioutil.WriteFile(file, data, os.ModePerm)
 }
+
+func (db *DB) Versions() []int { return db.versions }
 
 // Unmarshal 解码 data 至 DB
 //
@@ -207,21 +213,21 @@ func (db *DB) unmarshal(data []byte) error {
 
 	data, val = indexBytes(data, ':')
 	versions := strings.Split(strings.Trim(val, "[]"), ",")
-	vers := make([]int, 0, len(versions))
+	db.versions = make([]int, 0, len(versions))
 	for _, version := range versions {
 		v, err := strconv.Atoi(version)
 		if err != nil {
 			return err
 		}
-		vers = append(vers, v)
+		db.versions = append(db.versions, v)
 	}
 
-	if len(db.versions) == 0 {
-		db.versions = vers
+	if len(db.filters) == 0 {
+		db.filters = db.versions
 	} else {
 	LOOP:
-		for _, v := range db.versions {
-			for _, v2 := range vers {
+		for _, v := range db.filters {
+			for _, v2 := range db.versions {
 				if v2 == v {
 					continue LOOP
 				}
@@ -230,6 +236,26 @@ func (db *DB) unmarshal(data []byte) error {
 		}
 	}
 
+	defer func() {
+		db.versions = db.filters
+		db.filters = db.filters[:0]
+	}()
+
 	db.root = &Region{db: db}
 	return db.root.unmarshal(data, "", "", 0)
+}
+
+func (db *DB) filterVersions(versions []int) []int {
+	vers := make([]int, 0, len(versions))
+LOOP:
+	for _, v := range versions {
+		for _, v2 := range db.filters {
+			if v2 == v {
+				vers = append(vers, v)
+				continue LOOP
+			}
+		}
+	}
+
+	return vers
 }
