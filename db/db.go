@@ -15,6 +15,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"errors"
+	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"os"
@@ -36,7 +37,7 @@ var ErrIncompatible = errors.New("数据文件版本不兼容")
 
 // DB 区域数据库信息
 type DB struct {
-	region   *Region
+	root     *Region
 	versions []int // 支持的版本
 
 	// 以下数据不会写入数据文件中
@@ -49,22 +50,24 @@ func New() *DB {
 	db := &DB{
 		versions: []int{},
 	}
-	db.region = &Region{db: db}
+	db.root = &Region{db: db}
 
 	return db
 }
 
 // LoadFS 从数据文件加载数据
-func LoadFS(f fs.FS, file, separator string, compress bool) (*DB, error) {
+func LoadFS(f fs.FS, file, separator string, compress bool, version ...int) (*DB, error) {
 	data, err := fs.ReadFile(f, file)
 	if err != nil {
 		return nil, err
 	}
-	return Load(data, separator, compress)
+	return Load(data, separator, compress, version...)
 }
 
 // Load 将数据内容加载至 DB 对象
-func Load(data []byte, separator string, compress bool) (*DB, error) {
+//
+// version 仅加载指定年份的数据，如果为空，则加载所有数据；
+func Load(data []byte, separator string, compress bool, version ...int) (*DB, error) {
 	if compress {
 		rd, err := gzip.NewReader(bytes.NewReader(data))
 		if err != nil {
@@ -77,16 +80,23 @@ func Load(data []byte, separator string, compress bool) (*DB, error) {
 		}
 	}
 
-	return Unmarshal(data, separator)
+	db := &DB{
+		fullNameSeparator: separator,
+		versions:          version,
+	}
+	if err := db.unmarshal(data); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
 
 // LoadFile 从数据文件加载数据
-func LoadFile(file, separator string, compress bool) (*DB, error) {
+func LoadFile(file, separator string, compress bool, version ...int) (*DB, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	return Load(data, separator, compress)
+	return Load(data, separator, compress, version...)
 }
 
 // Dump 输出到文件
@@ -113,14 +123,10 @@ func (db *DB) Dump(file string, compress bool) error {
 }
 
 // Unmarshal 解码 data 至 DB
-func Unmarshal(data []byte, separator string) (*DB, error) {
-	db := &DB{
-		fullNameSeparator: separator,
-	}
-	if err := db.unmarshal(data); err != nil {
-		return nil, err
-	}
-	return db, nil
+//
+// Deprecated: 请使用 Load 代替
+func Unmarshal(data []byte, separator string, version ...int) (*DB, error) {
+	return Load(data, separator, false, version...)
 }
 
 // VersionIndex 指定年份在 Versions 中的下标
@@ -146,7 +152,7 @@ func (db *DB) AddVersion(ver int) (ok bool) {
 }
 
 // Find 查找指定 ID 对应的信息
-func (db *DB) Find(id ...string) *Region { return db.region.findItem(id...) }
+func (db *DB) Find(id ...string) *Region { return db.root.findItem(id...) }
 
 var levelIndex = []id.Level{id.Province, id.City, id.County, id.Town, id.Village}
 
@@ -178,7 +184,7 @@ func (db *DB) marshal() ([]byte, error) {
 	buf.WString(strings.Join(versions, ","))
 	buf.WByte(']').WByte(':')
 
-	err := db.region.marshal(&buf)
+	err := db.root.marshal(&buf)
 	if err != nil {
 		return nil, err
 	}
@@ -201,15 +207,29 @@ func (db *DB) unmarshal(data []byte) error {
 
 	data, val = indexBytes(data, ':')
 	versions := strings.Split(strings.Trim(val, "[]"), ",")
-	db.versions = make([]int, 0, len(versions))
+	vers := make([]int, 0, len(versions))
 	for _, version := range versions {
 		v, err := strconv.Atoi(version)
 		if err != nil {
 			return err
 		}
-		db.versions = append(db.versions, v)
+		vers = append(vers, v)
 	}
 
-	db.region = &Region{db: db}
-	return db.region.unmarshal(data, "", "", 0)
+	if len(db.versions) == 0 {
+		db.versions = vers
+	} else {
+	LOOP:
+		for _, v := range db.versions {
+			for _, v2 := range vers {
+				if v2 == v {
+					continue LOOP
+				}
+			}
+			return fmt.Errorf("当前数据文件没有 %d 年份的数据", v)
+		}
+	}
+
+	db.root = &Region{db: db}
+	return db.root.unmarshal(data, "", "", 0)
 }

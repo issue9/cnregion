@@ -18,7 +18,7 @@ var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:1{01:温州:3:0{}}34:安徽:1
 var obj = &DB{
 	versions:          []int{2020, 2019},
 	fullNameSeparator: "-",
-	region: &Region{
+	root: &Region{
 		Name:     "",
 		Versions: []int{2020},
 		Items: []*Region{
@@ -79,7 +79,7 @@ var obj = &DB{
 }
 
 func init() {
-	setRegionDB(obj.region, obj)
+	setRegionDB(obj.root, obj)
 }
 
 func setRegionDB(r *Region, db *DB) {
@@ -89,27 +89,27 @@ func setRegionDB(r *Region, db *DB) {
 	}
 }
 
-func TestMarshal(t *testing.T) {
+func TestLoad(t *testing.T) {
 	a := assert.New(t, false)
 
-	o1, err := Unmarshal(data, "-")
+	o1, err := Load(data, "-", false)
 	a.NotError(err).
 		Equal(o1.fullNameSeparator, obj.fullNameSeparator).
 		Equal(o1.versions, obj.versions).
-		Equal(len(o1.region.Items), len(obj.region.Items)).
-		Equal(o1.region.Items[0].ID, obj.region.Items[0].ID).
-		Equal(o1.region.Items[0].FullID, obj.region.Items[0].FullID).
-		Equal(o1.region.Items[0].Items[0].ID, obj.region.Items[0].Items[0].ID).
-		Equal(o1.region.Items[1].Items[0].ID, obj.region.Items[1].Items[0].ID).
-		Equal(o1.region.Items[1].Items[0].FullID, obj.region.Items[1].Items[0].FullID).
-		Equal(o1.region.Items[1].Items[1].FullID, obj.region.Items[1].Items[1].FullID).
-		NotEqual(o1.region.Items[1].Items[1].FullID, obj.region.Items[1].Items[0].FullID)
+		Equal(len(o1.root.Items), len(obj.root.Items)).
+		Equal(o1.root.Items[0].ID, obj.root.Items[0].ID).
+		Equal(o1.root.Items[0].FullID, obj.root.Items[0].FullID).
+		Equal(o1.root.Items[0].Items[0].ID, obj.root.Items[0].Items[0].ID).
+		Equal(o1.root.Items[1].Items[0].ID, obj.root.Items[1].Items[0].ID).
+		Equal(o1.root.Items[1].Items[0].FullID, obj.root.Items[1].Items[0].FullID).
+		Equal(o1.root.Items[1].Items[1].FullID, obj.root.Items[1].Items[1].FullID).
+		NotEqual(o1.root.Items[1].Items[1].FullID, obj.root.Items[1].Items[0].FullID)
 
 	d1, err := obj.marshal()
 	a.NotError(err).NotNil(d1)
 	a.Equal(string(d1), string(data))
 
-	_, err = Unmarshal([]byte("100:[2020]:::1:0{}"), "-")
+	_, err = Load([]byte("100:[2020]:::1:0{}"), "-", false)
 	a.Equal(err, ErrIncompatible)
 }
 
@@ -134,12 +134,12 @@ func TestLoadFS(t *testing.T) {
 	a.NotError(err).NotNil(obj)
 	a.Equal(obj.versions, version.All()).
 		Equal(obj.fullNameSeparator, "-").
-		True(len(obj.region.Items) > 0).
-		Equal(obj.region.Items[0].level, id.Province).
-		Equal(obj.region.Items[0].Items[0].level, id.City).
-		Equal(obj.region.Items[0].Items[0].Items[0].level, id.County).
-		Equal(obj.region.Items[1].level, id.Province).
-		Equal(obj.region.Items[2].Items[0].level, id.City)
+		True(len(obj.root.Items) > 0).
+		Equal(obj.root.Items[0].level, id.Province).
+		Equal(obj.root.Items[0].Items[0].level, id.City).
+		Equal(obj.root.Items[0].Items[0].Items[0].level, id.County).
+		Equal(obj.root.Items[1].level, id.Province).
+		Equal(obj.root.Items[2].Items[0].level, id.City)
 }
 
 func TestDB_Find(t *testing.T) {

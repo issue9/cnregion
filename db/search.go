@@ -45,7 +45,7 @@ func (db *DB) Search(opt *Options) []*Region {
 		panic("参数 opt 不能为空值")
 	}
 
-	r := db.region
+	r := db.root
 	if opt.Parent != "" {
 		r = db.Find(id.SplitFilter(opt.Parent)...)
 	}

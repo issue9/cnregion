@@ -158,7 +158,9 @@ func (reg *Region) unmarshal(data []byte, parentName, parentID string, level id.
 			if err := item.unmarshal(data[:index], reg.FullName, parentID, next); err != nil {
 				return err
 			}
-			reg.Items = append(reg.Items, item)
+			if len(item.Versions) > 0 { // 表示该条数据不支持所有的年份
+				reg.Items = append(reg.Items, item)
+			}
 			data = data[index+1:]
 		}
 	}
