@@ -1,12 +1,12 @@
 module github.com/issue9/cnregion/cmd/fetch
 
-go 1.17
+go 1.19
 
 require (
 	github.com/gocolly/colly/v2 v2.1.0
-	github.com/issue9/cmdopt v0.7.1
-	github.com/issue9/cnregion v1.2021.1
-	github.com/issue9/errwrap v0.2.1
+	github.com/issue9/cmdopt v0.7.3
+	github.com/issue9/cnregion v1.2021.2
+	github.com/issue9/errwrap v0.3.1
 )
 
 require (
