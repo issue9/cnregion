@@ -1,6 +1,6 @@
 module github.com/issue9/cnregion/cmd/fetch
 
-go 1.19
+go 1.20
 
 require (
 	github.com/gocolly/colly/v2 v2.1.0

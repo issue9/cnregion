@@ -34,12 +34,12 @@ func main() {
 
 	fetchFS := opt.New("fetch", "拉取数据\n", doFetch)
 	fetchFS.StringVar(&fetchDataDir, "data", "./data", "指定数据的保存目录")
-	fetchFS.StringVar(&fetchYears, "years", "", "指定年份，空值表示所有年份。")
+	fetchFS.StringVar(&fetchYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
 
 	buildFS := opt.New("build", "生成数据\n", doBuild)
 	buildFS.StringVar(&buildDataDir, "data", "", "指定数据目录")
 	buildFS.StringVar(&buildOutput, "output", "", "指定输出文件路径")
-	buildFS.StringVar(&buildYears, "years", "", "指定年份，空值表示所有年份。")
+	buildFS.StringVar(&buildYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
 
 	if err := opt.Exec(os.Args[1:]); err != nil {
 		fmt.Fprintln(opt.Output, err)
