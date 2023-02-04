@@ -9,13 +9,15 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/issue9/cmdopt"
 )
 
 var (
-	fetchDataDir string
-	fetchYears   string
+	fetchDataDir  string
+	fetchYears    string
+	fetchInterval string
 
 	buildDataDir string
 	buildOutput  string
@@ -35,6 +37,7 @@ func main() {
 	fetchFS := opt.New("fetch", "拉取数据\n", doFetch)
 	fetchFS.StringVar(&fetchDataDir, "data", "./data", "指定数据的保存目录")
 	fetchFS.StringVar(&fetchYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
+	fetchFS.StringVar(&fetchInterval, "internal", "5m", "每拉取一个省份数据后的间隔时间。")
 
 	buildFS := opt.New("build", "生成数据\n", doBuild)
 	buildFS.StringVar(&buildDataDir, "data", "", "指定数据目录")
@@ -53,7 +56,12 @@ func doFetch(io.Writer) error {
 		return err
 	}
 
-	return fetch(fetchDataDir, years...)
+	interval, err := time.ParseDuration(fetchInterval)
+	if err != nil {
+		return err
+	}
+
+	return fetch(fetchDataDir, interval, years...)
 }
 
 func doBuild(io.Writer) error {

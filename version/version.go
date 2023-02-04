@@ -17,7 +17,7 @@ var ErrInvalidYear = fmt.Errorf("无效的版本号，必须是介于 [%d,%d] �
 const start = 2009
 
 // 最新的有效年份，每次更新数据之后，需要手动更新此值。
-var latest = 2021
+var latest = 2022
 
 // All 返回支持的版本号列表
 func All() []int { return Range(start, latest) }
