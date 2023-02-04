@@ -6,20 +6,18 @@
 // 以年作为单位进行更新，同时也以四位的年份作为版本号。
 package version
 
-import (
-	"fmt"
-	"time"
-)
+import "fmt"
 
 // ErrInvalidYear 无效的年份版本
 //
 // 年份只能介于 [2009, 当前年份-1) 的区间之间。
 var ErrInvalidYear = fmt.Errorf("无效的版本号，必须是介于 [%d,%d] 之间的整数", start, latest)
 
-// start 起始版本号，即提供的数据的起始年份。
+// 起始版本号，即提供的数据的起始年份。
 const start = 2009
 
-var latest = time.Now().Year() - 1
+// 最新的有效年份，每次更新数据之后，需要手动更新此值。
+var latest = 2021
 
 // All 返回支持的版本号列表
 func All() []int { return Range(start, latest) }
