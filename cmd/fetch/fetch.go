@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -28,6 +29,7 @@ func fetch(dir string, interval time.Duration, years ...int) error {
 		return err
 	}
 
+	fmt.Printf("拉取以下年份：%v\n", years)
 	for _, year := range years {
 		if err := fetchYear(dir, interval, year); err != nil {
 			return err

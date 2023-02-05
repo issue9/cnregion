@@ -39,7 +39,7 @@ type item struct {
 func newProvince(dir string, i *item) *province {
 	return &province{
 		lock:  &sync.Mutex{},
-		items: make([]*item, 0, 5000),
+		items: make([]*item, 0, 50000),
 		dir:   dir,
 		id:    i.id,
 		text:  i.text,
@@ -60,8 +60,10 @@ func (fs *province) append(id, text string) {
 func (fs *province) dump() (ok bool) {
 	fs.append(fs.id, fs.text) // 加入省级标记
 
+	fmt.Println("去重...")
 	fs.items = sliceutil.Unique(fs.items, func(i, j *item) bool { return i.id == j.id })
 
+	fmt.Println("排序...")
 	sort.SliceStable(fs.items, func(i, j int) bool { return fs.items[i].id < fs.items[j].id })
 
 	path := filepath.Join(fs.dir, fs.id+".txt")
@@ -98,7 +100,7 @@ func buildColly(base string) (*colly.Collector, error) {
 		colly.AllowURLRevisit(),
 	)
 
-	rule := &colly.LimitRule{DomainGlob: "*", Parallelism: 50, RandomDelay: 10 * time.Second}
+	rule := &colly.LimitRule{Parallelism: 100, DomainGlob: "*", RandomDelay: 10 * time.Second}
 	if err := c.Limit(rule); err != nil {
 		return nil, err
 	}
@@ -112,7 +114,7 @@ func buildColly(base string) (*colly.Collector, error) {
 
 		// 重试
 		if err := c.Visit(resp.Request.URL.String()); err != nil {
-			fmt.Printf("ERROR:%s at visit %s", err, resp.Request.URL.String())
+			fmt.Printf("ERROR: %s at visit %s\n", err, resp.Request.URL.String())
 		}
 	})
 
@@ -172,7 +174,6 @@ func (fs *province) collect(base string) (ok bool) {
 		})
 
 		fs.append(id, text)
-		visit(e)
 	})
 
 	if err := c.Visit(base + ".html"); err != nil {
