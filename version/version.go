@@ -26,9 +26,7 @@ func All() []int { return Range(start, latest) }
 func IsValid(year int) bool { return year >= start && year <= latest }
 
 // BeginWith 从 begin 开始直到最新年份
-func BeginWith(begin int) []int {
-	return Range(begin, latest)
-}
+func BeginWith(begin int) []int { return Range(begin, latest) }
 
 // Range 获取指定范围内的版本号
 func Range(begin, end int) []int {

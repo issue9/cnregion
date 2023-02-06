@@ -83,7 +83,10 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 		return err
 	}
 	c.Wait()
-	fmt.Println(colorsSprintf(colors.Green, "拉取 %d 年份的数据完成，总共 %d 条\n", year, len(provinces)))
+	if len(provinces) == 0 {
+		return fmt.Errorf("未获取到 %s 年的省级数据", y)
+	}
+	fmt.Println(colorsSprintf(colors.Green, "拉取 %d 年份的省级数据完成，总共 %d 条\n", year, len(provinces)))
 
 	f, err := os.Create(dir + "/../error.log")
 	if err != nil {
