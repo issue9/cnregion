@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/issue9/cmdopt"
+	"github.com/issue9/term/v3/colors"
 )
 
 var (
@@ -89,4 +91,17 @@ func getYears(years string) ([]int, error) {
 	}
 
 	return ys, nil
+}
+
+func colorsSprintf(fore colors.Color, format string, v ...any) string {
+	return colors.Sprintf(colors.Normal, fore, colors.Default, format, v...)
+}
+
+func colorsSprint(fore colors.Color, v ...any) string {
+	return colors.Sprint(colors.Normal, fore, colors.Default, v...)
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil || !errors.Is(err, os.ErrNotExist)
 }

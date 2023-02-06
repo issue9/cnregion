@@ -39,14 +39,3 @@ jobs:
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           file: ./coverage.txt
-
-      # 测试命令行 fetch
-
-      - name: cd cmd/fetch
-        run: cd ./cmd/fetch
-
-      - name: vet cmd/fetch
-        run: go vet -v ./...
-
-      - name: Test
-        run: go test -v -coverprofile='coverage.txt' -covermode=atomic ./...
