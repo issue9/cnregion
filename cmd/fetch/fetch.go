@@ -100,6 +100,8 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 		if err := fetchProvince(dir, base, province); err != nil {
 			// 出错就忽略这个省份的输出，继续下一个省的。
 			fmt.Println(colorsSprint(colors.Red, err))
+			f.WriteString(y)
+			f.WriteString("\t")
 			f.WriteString(err.Error())
 			f.WriteString("\n\n")
 		}
