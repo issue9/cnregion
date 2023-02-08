@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,6 +20,8 @@ import (
 const baseURL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
 
 var digit = regexp.MustCompile("[0-9]+")
+
+var errNoData = errors.New("no data")
 
 // 拉取指定年份的数据
 //
@@ -88,7 +91,7 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 	}
 	fmt.Println(colorsSprintf(colors.Green, "拉取 %d 年份的省级数据完成，总共 %d 条\n", year, len(provinces)))
 
-	f, err := os.Create(dir + "/../error.log")
+	f, err := os.Create(dir + "/../" + y + "-error.log")
 	if err != nil {
 		return err
 	}
@@ -126,8 +129,8 @@ func fetchProvince(dir, base string, p *item) error {
 
 	cities := make([]*item, 0, 500)
 	c.OnHTML(".citytable .citytr td a", func(e *colly.HTMLElement) {
-		href := strings.TrimSuffix(e.Attr("href"), ".html")
-		cities = append(cities, &item{id: href, text: e.Text})
+		id := strings.TrimSuffix(e.Attr("href"), ".html")
+		cities = append(cities, &item{id: id, text: e.Text})
 	})
 
 	if err := c.Visit(base + p.id + ".html"); err != nil {
@@ -145,7 +148,16 @@ func fetchProvince(dir, base string, p *item) error {
 			continue
 		}
 
-		if err := fetchCity(fs, base, city); err != nil {
+		err = fetchCity(fs, base, city)
+		switch {
+		case errors.Is(err, errNoData):
+			if err1 := fetchCounty(fs, base, city); err1 != nil { // 广东省 东莞
+				if errors.Is(err1, errNoData) {
+					err1 = fmt.Errorf("未获取到 %s:%s 的县/乡镇数据", city.id, city.text)
+				}
+				return err1
+			}
+		case err != nil:
 			return err
 		}
 	}
@@ -163,8 +175,8 @@ func fetchCity(fs *provinceFile, base string, p *item) error {
 
 	counties := make([]*item, 0, 500)
 	c.OnHTML(".countytable .countytr td a", func(e *colly.HTMLElement) {
-		href := strings.TrimSuffix(e.Attr("href"), ".html")
-		counties = append(counties, &item{id: href, text: e.Text})
+		id := strings.TrimSuffix(e.Attr("href"), ".html")
+		counties = append(counties, &item{id: id, text: e.Text})
 	})
 
 	if err := c.Visit(base + p.id + ".html"); err != nil {
@@ -173,7 +185,7 @@ func fetchCity(fs *provinceFile, base string, p *item) error {
 	c.Wait()
 
 	if len(counties) == 0 {
-		return fmt.Errorf("未获取到 %s:%s 的县级数据", p.id, p.text)
+		return errNoData
 	}
 	fmt.Println(colorsSprintf(colors.Green, "拉取 %s 的县级数据完成，总共 %d 条\n", p.text, len(counties)))
 
@@ -183,6 +195,9 @@ func fetchCity(fs *provinceFile, base string, p *item) error {
 		}
 
 		if err := fetchCounty(fs, base+firstID(p.id)+"/", county); err != nil {
+			if errors.Is(err, errNoData) {
+				err = fmt.Errorf("未获取到 %s:%s 的乡镇数据", county.id, county.text)
+			}
 			return err
 		}
 	}
@@ -199,8 +214,13 @@ func fetchCounty(fs *provinceFile, base string, p *item) error {
 
 	towns := make([]*item, 0, 500)
 	c.OnHTML(".towntable .towntr td a", func(e *colly.HTMLElement) {
-		href := strings.TrimSuffix(e.Attr("href"), ".html")
-		towns = append(towns, &item{id: href, text: e.Text})
+		id := strings.TrimSuffix(e.Attr("href"), ".html")
+		towns = append(towns, &item{id: id, text: e.Text})
+	})
+
+	c.OnHTML(".countytable .towntr td a", func(e *colly.HTMLElement) { // 2021 之后的东莞等
+		id := strings.TrimSuffix(e.Attr("href"), ".html")
+		towns = append(towns, &item{id: id, text: e.Text})
 	})
 
 	if err := c.Visit(base + p.id + ".html"); err != nil {
@@ -209,7 +229,7 @@ func fetchCounty(fs *provinceFile, base string, p *item) error {
 	c.Wait()
 
 	if len(towns) == 0 {
-		return fmt.Errorf("未获取到 %s:%s 的乡镇数据", p.id, p.text)
+		return errNoData
 	}
 	fmt.Println(colorsSprintf(colors.Green, "拉取 %s 的乡镇数据完成，总共 %d 条\n", p.text, len(towns)))
 
@@ -219,6 +239,9 @@ func fetchCounty(fs *provinceFile, base string, p *item) error {
 		}
 
 		if err := fetchTown(fs, base+firstID(p.id)+"/", town); err != nil {
+			if errors.Is(err, errNoData) {
+				err = fmt.Errorf("未获取到 %s:%s 的街道数据", town.id, town.text)
+			}
 			return err
 		}
 	}
@@ -253,7 +276,7 @@ func fetchTown(fs *provinceFile, base string, p *item) error {
 	c.Wait()
 
 	if count == 0 {
-		return fmt.Errorf("未获取到 %s:%s 的街道数据", p.id, p.text)
+		return errNoData
 	}
 	fmt.Print(colorsSprintf(colors.Green, "拉取 %s 的街道数据完成，总共 %d 条\n", p.text, count))
 	return nil
