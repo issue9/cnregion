@@ -2,13 +2,16 @@
 
 // Package db 提供区域数据文件的相关操作
 //
-// 数据格式：1:[versions]:{id:name:yearIndex:size{}}
-//  1 表示数据格式的版本，采用当前包的 Version 常量；
-//  versions 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
-//  id 当前区域的 ID；
-//  name 当前区域的名称；
-//  yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 years 中的索引值；
-//  size 表示子元素的数量；
+// 数据格式：
+//
+//	1:[versions]:{id:name:yearIndex:size{}}
+//
+//	- 1 表示数据格式的版本，采用当前包的 Version 常量；
+//	- versions 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
+//	- id 当前区域的 ID；
+//	- name 当前区域的名称；
+//	- yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 years 中的索引值；
+//	- size 表示子元素的数量；
 package db
 
 import (

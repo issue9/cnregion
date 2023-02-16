@@ -86,9 +86,10 @@ func buildCollector(base string) (*colly.Collector, error) {
 		colly.UserAgent(userAgent),
 		colly.DetectCharset(),
 		colly.AllowURLRevisit(),
+		colly.CacheDir("./caches"),
 	)
 
-	rule := &colly.LimitRule{Parallelism: 100, DomainGlob: "*", RandomDelay: 800 * time.Millisecond}
+	rule := &colly.LimitRule{Parallelism: 100, DomainGlob: "*", Delay: time.Second}
 	if err := c.Limit(rule); err != nil {
 		return nil, err
 	}

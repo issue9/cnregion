@@ -50,6 +50,10 @@ func buildYear(d *db.DB, dataDir string, year int) error {
 			return nil
 		}
 
+		if info.Name()[0] == '.' { // 忽略隐藏文件
+			return nil
+		}
+
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
 			return err

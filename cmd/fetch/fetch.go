@@ -5,6 +5,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -103,7 +104,7 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 			continue
 		}
 
-		if err := fetchProvince(dir, base, province); err != nil {
+		if err := fetchProvince(f, dir, base, province); err != nil {
 			// 出错就忽略这个省份的输出，继续下一个省的。
 			fmt.Println(colorsSprint(colors.Red, err))
 			f.WriteString(y)
@@ -118,7 +119,7 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 }
 
 // base 格式： https://example.com/2022/ 到年份为止的数据
-func fetchProvince(dir, base string, p *item) error {
+func fetchProvince(f io.Writer, dir, base string, p *item) error {
 	fs := newProvinceFile(filepath.Join(dir, p.id+".txt"))
 	fs.append(p.id, p.text) // 加入省级标记
 
@@ -148,10 +149,10 @@ func fetchProvince(dir, base string, p *item) error {
 			continue
 		}
 
-		err = fetchCity(fs, base, city)
+		err = fetchCity(f, fs, base, city)
 		switch {
 		case errors.Is(err, errNoData):
-			if err1 := fetchCounty(fs, base, city); err1 != nil { // 广东省 东莞
+			if err1 := fetchCounty(f, fs, base, city); err1 != nil { // 广东省 东莞
 				if errors.Is(err1, errNoData) {
 					err1 = fmt.Errorf("未获取到 %s:%s 的县/乡镇数据", city.id, city.text)
 				}
@@ -165,7 +166,7 @@ func fetchProvince(dir, base string, p *item) error {
 	return fs.dump()
 }
 
-func fetchCity(fs *provinceFile, base string, p *item) error {
+func fetchCity(f io.Writer, fs *provinceFile, base string, p *item) error {
 	fs.append(p.id, p.text)
 
 	c, err := buildCollector(base)
@@ -194,17 +195,14 @@ func fetchCity(fs *provinceFile, base string, p *item) error {
 			continue
 		}
 
-		if err := fetchCounty(fs, base+firstID(p.id)+"/", county); err != nil {
-			if errors.Is(err, errNoData) {
-				err = fmt.Errorf("未获取到 %s:%s 的乡镇数据", county.id, county.text)
-			}
+		if err := fetchCounty(f, fs, base+firstID(p.id)+"/", county); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func fetchCounty(fs *provinceFile, base string, p *item) error {
+func fetchCounty(f io.Writer, fs *provinceFile, base string, p *item) error {
 	fs.append(p.id, p.text)
 
 	c, err := buildCollector(base)
@@ -223,13 +221,21 @@ func fetchCounty(fs *provinceFile, base string, p *item) error {
 		towns = append(towns, &item{id: id, text: e.Text})
 	})
 
+	// http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2014/46/4602.html
+	c.OnHTML(".countytable .countytr td a", func(e *colly.HTMLElement) {
+		id := strings.TrimSuffix(e.Attr("href"), ".html")
+		towns = append(towns, &item{id: id, text: e.Text})
+	})
+
 	if err := c.Visit(base + p.id + ".html"); err != nil {
 		return err
 	}
 	c.Wait()
 
 	if len(towns) == 0 {
-		return errNoData
+		// 2014 460201
+		io.WriteString(f, fmt.Sprintf("%s 返回乡镇数据为空，请确认该内容是否正常\n\n", base+p.id+".html"))
+		return nil
 	}
 	fmt.Println(colorsSprintf(colors.Green, "拉取 %s 的乡镇数据完成，总共 %d 条\n", p.text, len(towns)))
 
@@ -238,17 +244,14 @@ func fetchCounty(fs *provinceFile, base string, p *item) error {
 			continue
 		}
 
-		if err := fetchTown(fs, base+firstID(p.id)+"/", town); err != nil {
-			if errors.Is(err, errNoData) {
-				err = fmt.Errorf("未获取到 %s:%s 的街道数据", town.id, town.text)
-			}
+		if err := fetchTown(f, fs, base+firstID(p.id)+"/", town); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func fetchTown(fs *provinceFile, base string, p *item) error {
+func fetchTown(f io.Writer, fs *provinceFile, base string, p *item) error {
 	fs.append(p.id, p.text)
 
 	c, err := buildCollector(base)
@@ -276,7 +279,10 @@ func fetchTown(fs *provinceFile, base string, p *item) error {
 	c.Wait()
 
 	if count == 0 {
-		return errNoData
+		// 街道可以为空，比如：
+		// http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2015/34/01/11/340111009.html
+		io.WriteString(f, fmt.Sprintf("%s 返回空数据，请确认该内容是否正常\n\n", base+p.id+".html"))
+		return nil
 	}
 	fmt.Print(colorsSprintf(colors.Green, "拉取 %s 的街道数据完成，总共 %d 条\n", p.text, count))
 	return nil
