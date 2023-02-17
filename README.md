@@ -9,8 +9,6 @@
 历年统计用区域和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
 符合国家标准 GB/T 2260 与 GB/T 10114。
 
-*从 0.3.0 开始引入了 io/fs 和 embed 两个包，只支持 go1.16 以之后的版本*
-
 关于版本号，主版本号代码不兼容性更改，次版本号代码最后一次生成的数据年份，BUG 修正和兼容性的功能增加则增加修订版本号。
 
 ```go
@@ -29,7 +27,6 @@ list := v.Search(&SearchOptions{Text: ""温州"}) // 按索地名中带温州的
 ```
 
 对采集的数据进行了一定的加工，以减少文件的体积，文件保存在 `./data/regions.db` 中。
-你可以直接使用 go1.16 中的 `//go:embed` 嵌入到代码中，也可以采用 `cnregion.LoadFile` 从外部加载。
 
 ## 安装
 
