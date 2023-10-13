@@ -16,63 +16,70 @@ import (
 	"github.com/issue9/term/v3/colors"
 )
 
-var (
-	fetchDataDir  string
-	fetchYears    string
-	fetchInterval string
-
-	buildDataDir string
-	buildOutput  string
-	buildYears   string
-)
-
 func main() {
-	opt := &cmdopt.CmdOpt{
-		Output:        os.Stdout,
-		ErrorHandling: flag.ContinueOnError,
-		CommandsTitle: "子命令",
-		OptionsTitle:  "选项",
-	}
+	const usage = `fetch
+	commands:
+	{{commands}}
 
-	opt.Help("help", "显示当前命令\n")
+	flag:
+	{{flags}}
+	`
+	opt := cmdopt.New(os.Stdout, flag.ContinueOnError, usage, nil, func(s string) string { return fmt.Sprintf("not found %s", s) })
+	cmdopt.Help(opt, "help", "显示当前命令\n", "显示当前命令\n")
 
-	fetchFS := opt.New("fetch", "拉取数据\n", doFetch)
-	fetchFS.StringVar(&fetchDataDir, "data", "./data", "指定数据的保存目录")
-	fetchFS.StringVar(&fetchYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
-	fetchFS.StringVar(&fetchInterval, "internal", "1m", "每拉取一个省份数据后的间隔时间。")
+	opt.New("fetch", "拉取数据\n", "拉取数据\n", doFetch)
 
-	buildFS := opt.New("build", "生成数据\n", doBuild)
-	buildFS.StringVar(&buildDataDir, "data", "", "指定数据目录")
-	buildFS.StringVar(&buildOutput, "output", "", "指定输出文件路径")
-	buildFS.StringVar(&buildYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
+	opt.New("build", "生成数据\n", "生成数据\n", doBuild)
 
 	if err := opt.Exec(os.Args[1:]); err != nil {
-		fmt.Fprintln(opt.Output, err)
+		fmt.Fprintln(os.Stdout, err)
 		os.Exit(2)
 	}
 }
 
-func doFetch(io.Writer) error {
-	years, err := getYears(fetchYears)
-	if err != nil {
-		return err
-	}
+func doFetch(fs *flag.FlagSet) cmdopt.DoFunc {
+	var (
+		fetchDataDir  string
+		fetchYears    string
+		fetchInterval string
+	)
+	fs.StringVar(&fetchDataDir, "data", "./data", "指定数据的保存目录")
+	fs.StringVar(&fetchYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
+	fs.StringVar(&fetchInterval, "internal", "1m", "每拉取一个省份数据后的间隔时间。")
 
-	interval, err := time.ParseDuration(fetchInterval)
-	if err != nil {
-		return err
-	}
+	return func(w io.Writer) error {
+		years, err := getYears(fetchYears)
+		if err != nil {
+			return err
+		}
 
-	return fetch(fetchDataDir, interval, years...)
+		interval, err := time.ParseDuration(fetchInterval)
+		if err != nil {
+			return err
+		}
+
+		return fetch(fetchDataDir, interval, years...)
+	}
 }
 
-func doBuild(io.Writer) error {
-	years, err := getYears(buildYears)
-	if err != nil {
-		return err
-	}
+func doBuild(fs *flag.FlagSet) cmdopt.DoFunc {
+	var (
+		buildDataDir string
+		buildOutput  string
+		buildYears   string
+	)
+	fs.StringVar(&buildDataDir, "data", "", "指定数据目录")
+	fs.StringVar(&buildOutput, "output", "", "指定输出文件路径")
+	fs.StringVar(&buildYears, "years", "", "指定年份，空值表示所有年份。格式 y1,y2。")
 
-	return build(buildDataDir, buildOutput, years...)
+	return func(io.Writer) error {
+		years, err := getYears(buildYears)
+		if err != nil {
+			return err
+		}
+
+		return build(buildDataDir, buildOutput, years...)
+	}
 }
 
 func getYears(years string) ([]int, error) {
