@@ -18,7 +18,7 @@ import (
 	"github.com/issue9/term/v3/colors"
 )
 
-const baseURL = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/"
+const baseURL = "https://www.stats.gov.cn/sj/tjbz/tjyqhdmhcxhfdm/"
 
 var digit = regexp.MustCompile("[0-9]+")
 
@@ -68,19 +68,20 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 
 	provinces := make([]*item, 0, 50)
 	c.OnHTML(".provincetable .provincetr td a", func(e *colly.HTMLElement) {
-		id := strings.TrimSuffix(e.Attr("href"), ".html")
-		ignore := exists(filepath.Join(dir, id+".txt"))
+		href := strings.TrimSuffix(e.Attr("href"), ".html")
+		ignore := exists(filepath.Join(dir, href+".txt"))
 		provinces = append(provinces, &item{
-			id:     id,
+			href:   href + ".html",
 			text:   e.Text,
 			ignore: ignore,
+			id:     href + strings.Repeat("0", 10),
 		})
 
 		state := colorsSprint(colors.Red, "\t未完成")
 		if ignore {
 			state = colorsSprint(colors.Green, "\t已完成")
 		}
-		fmt.Println(id, e.Text, state)
+		fmt.Println(href, e.Text, state)
 	})
 
 	if err := c.Visit(base); err != nil {
@@ -120,8 +121,8 @@ func fetchYear(dir string, interval time.Duration, year int) error {
 
 // base 格式： https://example.com/2022/ 到年份为止的数据
 func fetchProvince(f io.Writer, dir, base string, p *item) error {
-	fs := newProvinceFile(filepath.Join(dir, p.id+".txt"))
-	fs.append(p.id, p.text) // 加入省级标记
+	fs := newProvinceFile(filepath.Join(dir, strings.TrimSuffix(p.href, ".html")+".txt"))
+	fs.append(p.text, p.id) // 加入省级标记
 
 	c, err := buildCollector(base)
 	if err != nil {
@@ -129,12 +130,11 @@ func fetchProvince(f io.Writer, dir, base string, p *item) error {
 	}
 
 	cities := make([]*item, 0, 500)
-	c.OnHTML(".citytable .citytr td a", func(e *colly.HTMLElement) {
-		id := strings.TrimSuffix(e.Attr("href"), ".html")
-		cities = append(cities, &item{id: id, text: e.Text})
+	c.OnHTML(".citytable .citytr", func(e *colly.HTMLElement) {
+		cities = append(cities, getItem(e))
 	})
 
-	if err := c.Visit(base + p.id + ".html"); err != nil {
+	if err := c.Visit(base + p.href); err != nil {
 		return err
 	}
 	c.Wait()
@@ -149,6 +149,10 @@ func fetchProvince(f io.Writer, dir, base string, p *item) error {
 			continue
 		}
 
+		fs.append(city.text, city.id)
+		if city.href == "" {
+			continue
+		}
 		err = fetchCity(f, fs, base, city)
 		switch {
 		case errors.Is(err, errNoData):
@@ -167,20 +171,17 @@ func fetchProvince(f io.Writer, dir, base string, p *item) error {
 }
 
 func fetchCity(f io.Writer, fs *provinceFile, base string, p *item) error {
-	fs.append(p.id, p.text)
-
 	c, err := buildCollector(base)
 	if err != nil {
 		return err
 	}
 
 	counties := make([]*item, 0, 500)
-	c.OnHTML(".countytable .countytr td a", func(e *colly.HTMLElement) {
-		id := strings.TrimSuffix(e.Attr("href"), ".html")
-		counties = append(counties, &item{id: id, text: e.Text})
+	c.OnHTML(".countytable .countytr", func(e *colly.HTMLElement) {
+		counties = append(counties, getItem(e))
 	})
 
-	if err := c.Visit(base + p.id + ".html"); err != nil {
+	if err := c.Visit(base + p.href); err != nil {
 		return err
 	}
 	c.Wait()
@@ -195,7 +196,11 @@ func fetchCity(f io.Writer, fs *provinceFile, base string, p *item) error {
 			continue
 		}
 
-		if err := fetchCounty(f, fs, base+firstID(p.id)+"/", county); err != nil {
+		fs.append(county.text, county.id)
+		if county.href == "" {
+			continue
+		}
+		if err := fetchCounty(f, fs, base+firstID(p.href)+"/", county); err != nil {
 			return err
 		}
 	}
@@ -203,38 +208,33 @@ func fetchCity(f io.Writer, fs *provinceFile, base string, p *item) error {
 }
 
 func fetchCounty(f io.Writer, fs *provinceFile, base string, p *item) error {
-	fs.append(p.id, p.text)
-
 	c, err := buildCollector(base)
 	if err != nil {
 		return err
 	}
 
 	towns := make([]*item, 0, 500)
-	c.OnHTML(".towntable .towntr td a", func(e *colly.HTMLElement) {
-		id := strings.TrimSuffix(e.Attr("href"), ".html")
-		towns = append(towns, &item{id: id, text: e.Text})
+	c.OnHTML(".towntable .towntr", func(e *colly.HTMLElement) {
+		towns = append(towns, getItem(e))
 	})
 
-	c.OnHTML(".countytable .towntr td a", func(e *colly.HTMLElement) { // 2021 之后的东莞等
-		id := strings.TrimSuffix(e.Attr("href"), ".html")
-		towns = append(towns, &item{id: id, text: e.Text})
+	c.OnHTML(".countytable .towntr", func(e *colly.HTMLElement) { // 2021 之后的东莞等
+		towns = append(towns, getItem(e))
 	})
 
 	// http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2014/46/4602.html
-	c.OnHTML(".countytable .countytr td a", func(e *colly.HTMLElement) {
-		id := strings.TrimSuffix(e.Attr("href"), ".html")
-		towns = append(towns, &item{id: id, text: e.Text})
+	c.OnHTML(".countytable .countytr", func(e *colly.HTMLElement) {
+		towns = append(towns, getItem(e))
 	})
 
-	if err := c.Visit(base + p.id + ".html"); err != nil {
+	if err := c.Visit(base + p.href); err != nil {
 		return err
 	}
 	c.Wait()
 
 	if len(towns) == 0 {
 		// 2014 460201
-		io.WriteString(f, fmt.Sprintf("%s 返回乡镇数据为空，请确认该内容是否正常\n\n", base+p.id+".html"))
+		io.WriteString(f, fmt.Sprintf("%s 返回乡镇数据为空，请确认该内容是否正常\n\n", base+p.href))
 		return nil
 	}
 	fmt.Println(colorsSprintf(colors.Green, "拉取 %s 的乡镇数据完成，总共 %d 条\n", p.text, len(towns)))
@@ -244,7 +244,11 @@ func fetchCounty(f io.Writer, fs *provinceFile, base string, p *item) error {
 			continue
 		}
 
-		if err := fetchTown(f, fs, base+firstID(p.id)+"/", town); err != nil {
+		fs.append(town.text, town.id)
+		if town.href == "" {
+			continue
+		}
+		if err := fetchTown(f, fs, base+firstID(p.href)+"/", town); err != nil {
 			return err
 		}
 	}
@@ -252,8 +256,6 @@ func fetchCounty(f io.Writer, fs *provinceFile, base string, p *item) error {
 }
 
 func fetchTown(f io.Writer, fs *provinceFile, base string, p *item) error {
-	fs.append(p.id, p.text)
-
 	c, err := buildCollector(base)
 	if err != nil {
 		return err
@@ -270,10 +272,10 @@ func fetchTown(f io.Writer, fs *provinceFile, base string, p *item) error {
 			}
 		})
 		count++
-		fs.append(id, text)
+		fs.append(text, id)
 	})
 
-	if err := c.Visit(base + p.id + ".html"); err != nil {
+	if err := c.Visit(base + p.href); err != nil {
 		return err
 	}
 	c.Wait()
@@ -281,9 +283,43 @@ func fetchTown(f io.Writer, fs *provinceFile, base string, p *item) error {
 	if count == 0 {
 		// 街道可以为空，比如：
 		// http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2015/34/01/11/340111009.html
-		io.WriteString(f, fmt.Sprintf("%s 返回空数据，请确认该内容是否正常\n\n", base+p.id+".html"))
+		io.WriteString(f, fmt.Sprintf("%s 返回空数据，请确认该内容是否正常\n\n", base+p.href))
 		return nil
 	}
 	fmt.Print(colorsSprintf(colors.Green, "拉取 %s 的街道数据完成，总共 %d 条\n", p.text, count))
 	return nil
+}
+
+func getItem(e *colly.HTMLElement) *item {
+	p := &item{}
+	e.ForEach("td", func(i int, elem *colly.HTMLElement) {
+		if i == 0 {
+			elem.ForEach("a", func(j int, child *colly.HTMLElement) {
+				if j > 1 {
+					return
+				}
+
+				p.href = child.Attr("href")
+				p.id = child.Text
+			})
+
+			if p.id == "" {
+				p.href = ""
+				p.id = elem.Text
+			}
+		} else if i == 1 {
+			elem.ForEach("a", func(j int, child *colly.HTMLElement) {
+				if j > 1 {
+					return
+				}
+
+				p.text = child.Text
+			})
+			if p.text == "" {
+				p.text = elem.Text
+			}
+		}
+	})
+
+	return p
 }

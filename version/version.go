@@ -2,7 +2,7 @@
 
 // Package version 提供版本的相关信息
 //
-// 依据 http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/ 提供的数据，
+// 依据 https://www.stats.gov.cn/sj/tjbz/tjyqhdmhcxhfdm/ 提供的数据，
 // 以年作为单位进行更新，同时也以四位的年份作为版本号。
 package version
 
@@ -17,7 +17,7 @@ var ErrInvalidYear = fmt.Errorf("无效的版本号，必须是介于 [%d,%d] �
 const start = 2009
 
 // 最新的有效年份，每次更新数据之后，需要手动更新此值。
-var latest = 2022
+var latest = 2023
 
 // All 返回支持的版本号列表
 func All() []int { return Range(start, latest) }

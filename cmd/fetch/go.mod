@@ -8,7 +8,7 @@ require (
 	github.com/issue9/cnregion v1.2022.0
 	github.com/issue9/errwrap v0.3.1
 	github.com/issue9/sliceutil v0.15.0
-	github.com/issue9/term/v3 v3.2.3
+	github.com/issue9/term/v3 v3.2.5
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	golang.org/x/net v0.5.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

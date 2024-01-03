@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/issue9/cnregion/id"
 	"github.com/issue9/errwrap"
 	"github.com/issue9/sliceutil"
 	"github.com/issue9/term/v3/colors"
@@ -28,8 +27,10 @@ type provinceFile struct {
 }
 
 type item struct {
-	id, text string
-	ignore   bool // 忽略此条数据
+	id     string // 区域 ID
+	href   string // href 的属性值，仅存在于中间过程
+	text   string
+	ignore bool // 忽略此条数据
 }
 
 func newProvinceFile(path string) *provinceFile {
@@ -40,15 +41,18 @@ func newProvinceFile(path string) *provinceFile {
 	}
 }
 
-func (fs *provinceFile) append(id, text string) {
-	id = trimID(id)
+func (fs *provinceFile) append(text, id string) {
 	if id == text {
 		return
 	}
 
+	if id == "" || text == "" {
+		panic(fmt.Sprintf("数据不能为空%s:%s", id, text))
+	}
+
 	fs.lock.Lock()
 	defer fs.lock.Unlock()
-	fs.items = append(fs.items, &item{id: id, text: text})
+	fs.items = append(fs.items, &item{text: text, id: id})
 }
 
 func (fs *provinceFile) dump() error {
@@ -116,26 +120,11 @@ func buildCollector(base string) (*colly.Collector, error) {
 	return c, nil
 }
 
-// 截取数字部分，不够填补后缀 0。
-func trimID(regionID string) string {
-	regionID = strings.TrimSuffix(regionID, ".html")
-	index := strings.LastIndexByte(regionID, '/')
-	if index >= 0 {
-		regionID = regionID[index+1:]
-	}
-
-	l := len(regionID)
-	if l < id.Length(id.Village) {
-		regionID += strings.Repeat("0", id.Length(id.Village)-l)
-	}
-
-	return regionID
-}
-
-func firstID(id string) string {
-	index := strings.IndexByte(id, '/')
+func firstID(href string) string {
+	href = strings.TrimSuffix(href, ".html")
+	index := strings.IndexByte(href, '/')
 	if index <= 0 {
-		return strings.TrimSuffix(id, ".html")
+		return strings.TrimSuffix(href, ".html")
 	}
-	return id[:index]
+	return href[:index]
 }

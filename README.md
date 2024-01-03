@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/issue9/cnregion/branch/master/graph/badge.svg)](https://codecov.io/gh/issue9/cnregion)
 ![License](https://img.shields.io/github/license/issue9/cnregion)
 
-历年统计用区域和城乡划分代码，数据来源于 <http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/>。
+历年统计用区域和城乡划分代码，数据来源于 <https://www.stats.gov.cn/sj/tjbz/tjyqhdmhcxhfdm/>。
 符合国家标准 GB/T 2260 与 GB/T 10114。
 
 关于版本号，主版本号代码不兼容性更改，次版本号代码最后一次生成的数据年份，BUG 修正和兼容性的功能增加则增加修订版本号。
