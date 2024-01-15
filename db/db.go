@@ -10,7 +10,7 @@
 //	- versions 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
 //	- id 当前区域的 ID；
 //	- name 当前区域的名称；
-//	- yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 years 中的索引值；
+//	- yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 versions 中的索引值；
 //	- size 表示子元素的数量；
 package db
 
@@ -19,8 +19,8 @@ import (
 	"compress/gzip"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -81,7 +81,7 @@ func Load(data []byte, separator string, compress bool, version ...int) (*DB, er
 			return nil, err
 		}
 
-		data, err = ioutil.ReadAll(rd)
+		data, err = io.ReadAll(rd)
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +99,7 @@ func Load(data []byte, separator string, compress bool, version ...int) (*DB, er
 
 // LoadFile 从数据文件加载数据
 func LoadFile(file, separator string, compress bool, version ...int) (*DB, error) {
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (db *DB) Dump(file string, compress bool) error {
 		data = buf.Bytes()
 	}
 
-	return ioutil.WriteFile(file, data, os.ModePerm)
+	return os.WriteFile(file, data, os.ModePerm)
 }
 
 func (db *DB) Versions() []int { return db.versions }
