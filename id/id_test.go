@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2021-2024 caixw
+//
 // SPDX-License-Identifier: MIT
 
 package id
@@ -5,7 +7,7 @@ package id
 import (
 	"testing"
 
-	"github.com/issue9/assert/v3"
+	"github.com/issue9/assert/v4"
 )
 
 func TestSplit(t *testing.T) {

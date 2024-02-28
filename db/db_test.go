@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2021-2024 caixw
+//
 // SPDX-License-Identifier: MIT
 
 package db
@@ -7,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/issue9/assert/v3"
+	"github.com/issue9/assert/v4"
 
 	"github.com/issue9/cnregion/id"
 	"github.com/issue9/cnregion/version"

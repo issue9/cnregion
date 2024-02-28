@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2021-2024 caixw
+//
 // SPDX-License-Identifier: MIT
 
 package main

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2021-2024 caixw
+//
 // SPDX-License-Identifier: MIT
 
 // Package db 提供区域数据文件的相关操作

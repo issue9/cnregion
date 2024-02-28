@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2021-2024 caixw
+//
 // SPDX-License-Identifier: MIT
 
 // Package id 针对 ID 的一些操作函数
@@ -54,7 +56,8 @@ func Split(id string) (province, city, county, town, village string) {
 
 // SplitFilter 将 id 按区域进行划分且过滤掉零值的区域
 //
-//  330312123000 => 33 03 12 123
+//	330312123000 => 33 03 12 123
+//
 // 如果传递的是零值，则返回空数组。
 func SplitFilter(id string) []string {
 	province, city, county, town, village := Split(id)
@@ -73,7 +76,7 @@ func filterZero(id ...string) []string {
 
 // Parent 获取 id 的上一级行政区域的 ID
 //
-//  330312123456 => 330312123
+//	330312123456 => 330312123
 func Parent(id string) string {
 	list := SplitFilter(id)
 	return strings.Join(list[:len(list)-1], "")
@@ -81,8 +84,8 @@ func Parent(id string) string {
 
 // Prefix 获取 ID 的非零前缀
 //
-//  330312123456 => 330312123456
-//  330312123000 => 330312123
+//	330312123456 => 330312123456
+//	330312123000 => 330312123
 func Prefix(id string) string {
 	return strings.Join(SplitFilter(id), "")
 }
