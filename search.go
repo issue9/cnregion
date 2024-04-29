@@ -7,7 +7,7 @@ package cnregion
 import (
 	"strings"
 
-	"github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/v2/id"
 )
 
 // Options 搜索选项
@@ -25,7 +25,7 @@ type Options struct {
 
 	// 搜索的城市类型
 	//
-	// 该值取值于 github.com/issue9/cnregion/id.Level 类型。 多个值可以通过或运算叠加。
+	// 该值取值于 github.com/issue9/cnregion/v2/id.Level 类型。 多个值可以通过或运算叠加。
 	// 0 表示所有类型。
 	Level id.Level
 

@@ -4,7 +4,7 @@
 
 package cnregion
 
-import "github.com/issue9/cnregion/id"
+import "github.com/issue9/cnregion/v2/id"
 
 // Districts 按行政大区划分
 //

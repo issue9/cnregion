@@ -11,8 +11,8 @@ import (
 
 	"github.com/issue9/assert/v4"
 
-	"github.com/issue9/cnregion/id"
-	"github.com/issue9/cnregion/version"
+	"github.com/issue9/cnregion/v2/id"
+	"github.com/issue9/cnregion/v2/version"
 )
 
 func TestLoad(t *testing.T) {

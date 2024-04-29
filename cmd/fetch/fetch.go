@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/issue9/cnregion/version"
+	"github.com/issue9/cnregion/v2/version"
 	"github.com/issue9/term/v3/colors"
 )
 

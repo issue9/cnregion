@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/issue9/cmdopt v0.13.1
-	github.com/issue9/cnregion v1.2023.2
+	github.com/issue9/cnregion/v2 v2.2023.0
 	github.com/issue9/errwrap v0.3.2
 	github.com/issue9/sliceutil v0.16.1
 	github.com/issue9/term/v3 v3.2.8
@@ -30,4 +30,4 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 )
 
-replace github.com/issue9/cnregion => ../../
+replace github.com/issue9/cnregion/v2 => ../../

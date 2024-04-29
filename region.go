@@ -12,7 +12,7 @@ import (
 
 	"github.com/issue9/errwrap"
 
-	"github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/v2/id"
 )
 
 // Region 表示单个区域

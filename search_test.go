@@ -11,7 +11,7 @@ import (
 
 	"github.com/issue9/assert/v4"
 
-	"github.com/issue9/cnregion/id"
+	"github.com/issue9/cnregion/v2/id"
 )
 
 func TestDB_Search(t *testing.T) {

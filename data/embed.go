@@ -7,7 +7,7 @@ package data
 import (
 	"embed"
 
-	"github.com/issue9/cnregion"
+	"github.com/issue9/cnregion/v2"
 )
 
 //go:embed regions.db

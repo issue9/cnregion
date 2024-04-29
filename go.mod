@@ -1,4 +1,4 @@
-module github.com/issue9/cnregion
+module github.com/issue9/cnregion/v2
 
 go 1.17
 

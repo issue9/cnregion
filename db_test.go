@@ -9,8 +9,8 @@ import (
 
 	"github.com/issue9/assert/v4"
 
-	"github.com/issue9/cnregion/id"
-	"github.com/issue9/cnregion/version"
+	"github.com/issue9/cnregion/v2/id"
+	"github.com/issue9/cnregion/v2/version"
 )
 
 var data = []byte(`1:[2020,2019]:::1:2{33:浙江:1:1{01:温州:3:0{}}34:安徽:1:3{01:合肥:3:0{}02:芜湖:1:0{}03:芜湖-2:1:0{}}}`)

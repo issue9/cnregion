@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/issue9/cnregion"
-	"github.com/issue9/cnregion/version"
+	"github.com/issue9/cnregion/v2"
+	"github.com/issue9/cnregion/v2/version"
 )
 
 func build(dataDir, output string, years ...int) error {
