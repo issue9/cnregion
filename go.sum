@@ -1,4 +1,5 @@
-github.com/issue9/assert/v4 v4.1.1 h1:OhPE8SB8n/qZCNGLQa+6MQtr/B3oON0JAVj68k8jJlc=
 github.com/issue9/assert/v4 v4.1.1/go.mod h1:v7qDRXi7AsaZZNh8eAK2rkLJg5/clztqQGA1DRv9Lv4=
+github.com/issue9/assert/v4 v4.3.0 h1:W3XDKmttsfzihYGxJ9rJoL2ViJgWERB9IxfHcxjv65U=
+github.com/issue9/assert/v4 v4.3.0/go.mod h1:v7qDRXi7AsaZZNh8eAK2rkLJg5/clztqQGA1DRv9Lv4=
 github.com/issue9/errwrap v0.3.2 h1:7KEme9Pfe75M+sIMcPCn/DV90wjnOcRbO4DXVAHj3Fw=
 github.com/issue9/errwrap v0.3.2/go.mod h1:KcCLuUGiffjooLCUjL89r1cyO8/HT/VRcQrneO53N3A=

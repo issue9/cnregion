@@ -21,7 +21,6 @@ type Region interface {
 
 type dbRegion struct {
 	r *db.Region
-	v *Version
 }
 
 type districtRegion struct {
@@ -33,7 +32,7 @@ type districtRegion struct {
 // Find 查找指定 ID 所表示的 Region
 func (v *Version) Find(regionID string) Region {
 	if dr := v.db.Find(id.SplitFilter(regionID)...); dr != nil {
-		return &dbRegion{r: dr, v: v}
+		return &dbRegion{r: dr}
 	}
 	return nil
 }
@@ -47,7 +46,7 @@ func (r *dbRegion) Versions() []int  { return r.r.Versions }
 func (r *dbRegion) Items() []Region {
 	items := make([]Region, 0, len(r.r.Items))
 	for _, item := range r.r.Items {
-		items = append(items, &dbRegion{r: item, v: r.v})
+		items = append(items, &dbRegion{r: item})
 	}
 	return items
 }

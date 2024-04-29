@@ -62,7 +62,7 @@ func (v *Version) Search(opt *SearchOptions) []Region {
 	list := v.db.Search(opt)
 	rs := make([]Region, 0, len(list))
 	for _, item := range list {
-		rs = append(rs, &dbRegion{r: item, v: v})
+		rs = append(rs, &dbRegion{r: item})
 	}
 	return rs
 }
@@ -71,7 +71,7 @@ func (v *Version) Search(opt *SearchOptions) []Region {
 func (v *Version) Provinces() []Region {
 	if len(v.provinces) == 0 {
 		root := v.db.Find()
-		v.provinces = (&dbRegion{r: root, v: v}).Items()
+		v.provinces = (&dbRegion{r: root}).Items()
 	}
 	return v.provinces
 }
