@@ -41,8 +41,8 @@ func (r *Region) Versions() []int  { return r.versions } // 支持的年份版�
 func (r *Region) Items() []*Region { return r.items }    // 子项
 
 // IsSupported 当前数据是否支持该年份
-func (reg *Region) IsSupported(ver int) bool {
-	for _, y := range reg.versions {
+func (r *Region) IsSupported(ver int) bool {
+	for _, y := range r.versions { // TODO(go1.21) slices.Index
 		if y == ver {
 			return true
 		}
