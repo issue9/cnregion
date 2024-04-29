@@ -13,12 +13,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/issue9/cnregion/db"
+	"github.com/issue9/cnregion"
 	"github.com/issue9/cnregion/version"
 )
 
 func build(dataDir, output string, years ...int) error {
-	d := db.New()
+	d := cnregion.NewDB()
 
 	if len(years) == 0 {
 		years = version.All()
@@ -32,7 +32,7 @@ func build(dataDir, output string, years ...int) error {
 	return d.Dump(output, true)
 }
 
-func buildYear(d *db.DB, dataDir string, year int) error {
+func buildYear(d *cnregion.DB, dataDir string, year int) error {
 	fmt.Printf("\n添加 %d 的数据\n", year)
 	if !d.AddVersion(year) {
 		fmt.Printf("已经存在该年份 %d 的数据\n\n", year)

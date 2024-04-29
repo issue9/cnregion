@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-package db
+package cnregion
 
 import (
 	"strings"
@@ -49,7 +49,7 @@ func (db *DB) Search(opt *Options) []*Region {
 
 	r := db.root
 	if opt.Parent != "" {
-		r = db.Find(id.SplitFilter(opt.Parent)...)
+		r = db.Find(opt.Parent)
 	}
 	if r == nil { // 不存在 opt.Parent 指定的数据
 		return nil
@@ -70,7 +70,7 @@ func (db *DB) Search(opt *Options) []*Region {
 }
 
 func (reg *Region) search(opt *Options, list []*Region) []*Region {
-	if strings.Contains(reg.Name, opt.Text) &&
+	if strings.Contains(reg.name, opt.Text) &&
 		(reg.level&opt.Level == reg.level) && reg.level != 0 { // level == 0 只有根元素才有
 		list = append(list, reg)
 		opt.Max--
@@ -80,7 +80,7 @@ func (reg *Region) search(opt *Options, list []*Region) []*Region {
 		return list
 	}
 
-	for _, item := range reg.Items {
+	for _, item := range reg.items {
 		list = item.search(opt, list)
 	}
 

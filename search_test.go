@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
-package db
+package cnregion
 
 import (
 	"os"
@@ -19,15 +19,15 @@ func TestDB_Search(t *testing.T) {
 
 	rs := obj.Search(&Options{Text: "合肥"})
 	a.Equal(1, len(rs)).
-		Equal(rs[0].Name, "合肥")
+		Equal(rs[0].name, "合肥")
 
 	rs = obj.Search(&Options{Parent: "340000000000", Text: "合肥"})
 	a.Equal(1, len(rs)).
-		Equal(rs[0].Name, "合肥")
+		Equal(rs[0].name, "合肥")
 
 	rs = obj.Search(&Options{Parent: "000000000000", Text: "合肥"})
 	a.Equal(1, len(rs)).
-		Equal(rs[0].Name, "合肥")
+		Equal(rs[0].name, "合肥")
 
 	// 限定 level 只能是省以及 parent 为 34 开头
 	rs = obj.Search(&Options{Parent: "340000000000", Level: id.Province, Text: "合肥"})
@@ -55,7 +55,7 @@ func TestDB_Search(t *testing.T) {
 	rs = obj.Search(&Options{Level: id.City})
 	a.Equal(4, len(rs))
 	for _, r := range rs {
-		a.True(strings.HasSuffix(r.FullID, "00000000"))
+		a.True(strings.HasSuffix(r.fullID, "00000000"))
 	}
 
 	// 只有 Level
@@ -70,7 +70,7 @@ func TestDB_Search(t *testing.T) {
 func TestDB_SearchWithData(t *testing.T) {
 	a := assert.New(t, false)
 
-	obj, err := LoadFS(os.DirFS("../data"), "regions.db", "-", true)
+	obj, err := LoadFS(os.DirFS("./data"), "regions.db", "-", true)
 	a.NotError(err).NotNil(obj)
 	got := obj.Search(&Options{Text: "温州"})
 	a.NotEmpty(got)

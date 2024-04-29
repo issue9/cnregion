@@ -2,28 +2,12 @@
 //
 // SPDX-License-Identifier: MIT
 
-// Package db 提供区域数据文件的相关操作
-//
-// 数据格式：
-//
-//	1:[versions]:{id:name:yearIndex:size{}}
-//
-//	- 1 表示数据格式的版本，采用当前包的 Version 常量；
-//	- versions 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
-//	- id 当前区域的 ID；
-//	- name 当前区域的名称；
-//	- yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 versions 中的索引值；
-//	- size 表示子元素的数量；
-package db
+package cnregion
 
 import (
 	"bytes"
-	"compress/gzip"
 	"errors"
 	"fmt"
-	"io"
-	"io/fs"
-	"os"
 	"strconv"
 	"strings"
 
@@ -41,6 +25,17 @@ const Version = 1
 var ErrIncompatible = errors.New("数据文件版本不兼容")
 
 // DB 区域数据库信息
+//
+// 数据格式：
+//
+//	1:[versions]:{id:name:yearIndex:size{}}
+//
+//	- 1 表示数据格式的版本，采用当前包的 Version 常量；
+//	- versions 表示当前数据文件中的数据支持的年份列表，以逗号分隔；
+//	- id 当前区域的 ID；
+//	- name 当前区域的名称；
+//	- yearIndex 此条数据支持的年份列表，每一个位表示一个年份在 versions 中的索引值；
+//	- size 表示子元素的数量；
 type DB struct {
 	root     *Region
 	versions []int // 支持的版本
@@ -48,103 +43,28 @@ type DB struct {
 	// 以下数据不会写入数据文件中
 
 	fullNameSeparator string
+	districts         []*Region
 
 	// Load 指定的过滤版本，仅在 unmarshal 过程中使用，
 	// 在完成 unmarshal 之的清空。
 	filters []int
 }
 
-// New 返回 DB 的空对象
-func New() *DB {
-	db := &DB{
-		versions: []int{},
-	}
+// NewDB 返回空的 [DB] 对象
+func NewDB() *DB {
+	db := &DB{versions: []int{}}
 	db.root = &Region{db: db}
-
 	return db
 }
 
-// LoadFS 从数据文件加载数据
-func LoadFS(f fs.FS, file, separator string, compress bool, version ...int) (*DB, error) {
-	data, err := fs.ReadFile(f, file)
-	if err != nil {
-		return nil, err
-	}
-	return Load(data, separator, compress, version...)
-}
-
-// Load 将数据内容加载至 DB 对象
-//
-// version 仅加载指定年份的数据，如果为空，则加载所有数据；
-func Load(data []byte, separator string, compress bool, version ...int) (*DB, error) {
-	if compress {
-		rd, err := gzip.NewReader(bytes.NewReader(data))
-		if err != nil {
-			return nil, err
-		}
-
-		data, err = io.ReadAll(rd)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	db := &DB{
-		fullNameSeparator: separator,
-		filters:           version,
-	}
-	if err := db.unmarshal(data); err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
-// LoadFile 从数据文件加载数据
-func LoadFile(file, separator string, compress bool, version ...int) (*DB, error) {
-	data, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-	return Load(data, separator, compress, version...)
-}
-
-// Dump 输出到文件
-func (db *DB) Dump(file string, compress bool) error {
-	data, err := db.marshal()
-	if err != nil {
-		return err
-	}
-
-	if compress {
-		buf := new(bytes.Buffer)
-		w := gzip.NewWriter(buf)
-		if _, err = w.Write(data); err != nil {
-			return err
-		}
-		if err = w.Close(); err != nil {
-			return err
-		}
-
-		data = buf.Bytes()
-	}
-
-	return os.WriteFile(file, data, os.ModePerm)
-}
-
+// Version 当前这份数据支持的年份列表
 func (db *DB) Versions() []int { return db.versions }
 
-// Unmarshal 解码 data 至 DB
-//
-// Deprecated: 请使用 Load 代替
-func Unmarshal(data []byte, separator string, version ...int) (*DB, error) {
-	return Load(data, separator, false, version...)
-}
-
-// VersionIndex 指定年份在 Versions 中的下标
+// 指定年份在 Versions 中的下标
 //
 // 如果不存在，返回 -1
-func (db *DB) VersionIndex(ver int) int {
-	for i, v := range db.versions {
+func (db *DB) versionIndex(ver int) int {
+	for i, v := range db.versions { // TODO(go1.21) slices.IndexFunc
 		if v == ver {
 			return i
 		}
@@ -154,7 +74,7 @@ func (db *DB) VersionIndex(ver int) int {
 
 // AddVersion 添加新的版本号
 func (db *DB) AddVersion(ver int) (ok bool) {
-	if db.VersionIndex(ver) > -1 { // 检测 ver 是否已经存在
+	if db.versionIndex(ver) > -1 { // 检测 ver 是否已经存在
 		return false
 	}
 
@@ -163,18 +83,18 @@ func (db *DB) AddVersion(ver int) (ok bool) {
 }
 
 // Find 查找指定 ID 对应的信息
-func (db *DB) Find(id ...string) *Region { return db.root.findItem(id...) }
+func (db *DB) Find(regionID string) *Region { return db.root.findItem(id.SplitFilter(regionID)...) }
 
 var levelIndex = []id.Level{id.Province, id.City, id.County, id.Town, id.Village}
 
 // AddItem 添加一条子项
 func (db *DB) AddItem(regionID, name string, ver int) error {
 	list := id.SplitFilter(regionID)
-	item := db.Find(list...)
+	item := db.root.findItem(list...)
 
 	if item == nil {
 		items := list[:len(list)-1] // 上一级
-		item = db.Find(items...)
+		item = db.root.findItem(items...)
 		level := levelIndex[len(items)]
 		return item.addItem(list[len(list)-1], name, level, ver)
 	}
