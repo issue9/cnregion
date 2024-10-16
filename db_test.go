@@ -130,11 +130,3 @@ func TestDB_Find(t *testing.T) {
 		Equal(r.ID(), "05").
 		Contains(r.Versions(), []int{2018, 2017, 2016, 2015})
 }
-
-func TestDB_versionIndex(t *testing.T) {
-	a := assert.New(t, false)
-
-	a.Equal(0, obj.versionIndex(2020))
-	a.Equal(1, obj.versionIndex(2019))
-	a.Equal(-1, obj.versionIndex(1990))
-}

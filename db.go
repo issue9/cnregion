@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -60,21 +61,9 @@ func NewDB() *DB {
 // Version 当前这份数据支持的年份列表
 func (db *DB) Versions() []int { return db.versions }
 
-// 指定年份在 Versions 中的下标
-//
-// 如果不存在，返回 -1
-func (db *DB) versionIndex(ver int) int {
-	for i, v := range db.versions { // TODO(go1.21) slices.IndexFunc
-		if v == ver {
-			return i
-		}
-	}
-	return -1
-}
-
 // AddVersion 添加新的版本号
 func (db *DB) AddVersion(ver int) (ok bool) {
-	if db.versionIndex(ver) > -1 { // 检测 ver 是否已经存在
+	if slices.Index(db.versions, ver) > -1 { // 检测 ver 是否已经存在
 		return false
 	}
 

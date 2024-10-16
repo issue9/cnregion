@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 
 	"github.com/issue9/errwrap"
@@ -41,17 +42,10 @@ func (r *Region) Versions() []int  { return r.versions } // 支持的年份版�
 func (r *Region) Items() []*Region { return r.items }    // 子项
 
 // IsSupported 当前数据是否支持该年份
-func (r *Region) IsSupported(ver int) bool {
-	for _, y := range r.versions { // TODO(go1.21) slices.Index
-		if y == ver {
-			return true
-		}
-	}
-	return false
-}
+func (r *Region) IsSupported(ver int) bool { return slices.Index(r.versions, ver) > -1 }
 
 func (reg *Region) addItem(id, name string, level id.Level, ver int) error {
-	if index := reg.db.versionIndex(ver); index == -1 {
+	if slices.Index(reg.db.versions, ver) == -1 {
 		return fmt.Errorf("不支持该年份 %d 的数据", ver)
 	}
 
@@ -72,8 +66,7 @@ func (reg *Region) addItem(id, name string, level id.Level, ver int) error {
 }
 
 func (reg *Region) setSupported(ver int) error {
-	index := reg.db.versionIndex(ver)
-	if index == -1 {
+	if slices.Index(reg.db.versions, ver) == -1 {
 		return fmt.Errorf("不存在该年份 %d 的数据", ver)
 	}
 
@@ -100,7 +93,7 @@ func (reg *Region) findItem(regionID ...string) *Region {
 func (reg *Region) marshal(buf *errwrap.Buffer) error {
 	supported := 0
 	for _, ver := range reg.versions {
-		index := reg.db.versionIndex(ver)
+		index := slices.Index(reg.db.versions, ver)
 		if index == -1 {
 			return fmt.Errorf("无效的年份 %d 位于 %s", ver, reg.fullName)
 		}
