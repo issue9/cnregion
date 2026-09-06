@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        go: ['1.21.x', '1.23.x']
+        go: ['1.27.x']
 
     steps:
 
@@ -20,10 +20,10 @@ jobs:
           git config --global core.eol lf
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go ${{ matrix.go }}
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
         id: go
@@ -35,7 +35,7 @@ jobs:
         run: go test -v -coverprofile='coverage.txt' -covermode=atomic ./...
 
       - name: Upload Coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           file: ./coverage.txt

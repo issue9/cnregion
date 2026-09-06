@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 caixw
+// SPDX-FileCopyrightText: 2021-2026 caixw
 //
 // SPDX-License-Identifier: MIT
 
@@ -7,7 +7,7 @@ package version
 import (
 	"testing"
 
-	"github.com/issue9/assert/v4"
+	"github.com/issue9/assert/v5"
 )
 
 func TestAll(t *testing.T) {
